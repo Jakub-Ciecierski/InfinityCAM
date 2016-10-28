@@ -131,7 +131,8 @@ void Cutter::CutSphere(HeightMap* height_map){
                     = ifx::Intersection(line, sphere);
             float d = intersection.d1 <= intersection.d2
                       ? intersection.d1 : intersection.d2;
-            if(d == intersection.NO_SOLUTION)continue;
+            if(d == intersection.NO_SOLUTION)
+                continue;
 
             height_map->SetHeight(i, d);
         }

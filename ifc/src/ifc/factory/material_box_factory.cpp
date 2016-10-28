@@ -64,10 +64,7 @@ MaterialBoxFactory::CreateTexelledBox(MaterialBoxPrecision precision,
                                      model_object.getPosition().z);
 
             data.model_matrices[i] = model_object.GetModelMatrix();
-            /*
-            std::cout << "[" << i << "]"
-            << positions[i].x << ", " << positions[i].y << std::endl;
-*/
+
             i++;
             z_translate += dz;
         }
@@ -81,8 +78,6 @@ MaterialBoxFactory::CreateTexelledBox(MaterialBoxPrecision precision,
             int kk = j*precision.z + l;
             glm::vec2 p = positions[j*precision.z + l];
             reordered.push_back(p);
-            std::cout << "[" << k  << "]"
-            << p.x << ", " << p.y << std::endl;
             k++;
         }
 

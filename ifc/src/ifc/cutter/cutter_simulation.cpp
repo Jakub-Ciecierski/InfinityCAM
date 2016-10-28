@@ -11,7 +11,7 @@ CutterSimulation::CutterSimulation(ifx::Scene* scene) :
         current_update_time_(0),
         last_update_time_(0),
         total_time_s_(0),
-        line_delta_(0.5){
+        line_delta_(1.0){
     Pause();
 }
 
