@@ -27,7 +27,6 @@ public:
         positions_ = positions;
     }
     float GetHeight(int i);
-    void SetHeight(int i, int j, float height);
     bool SetHeight(int i, float height);
     void Update();
 

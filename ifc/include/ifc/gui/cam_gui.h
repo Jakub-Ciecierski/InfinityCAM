@@ -45,8 +45,6 @@ private:
     void RenderMaterialBoxPrecision();
     void ResetSimulation();
 
-    void RenderControlsInfoSection();
-
     void RenderDebugSection();
     void RenderPlane();
     void RenderExample();

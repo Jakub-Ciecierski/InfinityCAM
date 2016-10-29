@@ -37,8 +37,8 @@ void CAMGUI::SetDefaultParameters(){
     material_box_create_params_.dimensions.depth = 50;
     material_box_create_params_.dimensions.max_depth = 30;
 
-    material_box_create_params_.precision.x = 200;
-    material_box_create_params_.precision.z = 200;
+    material_box_create_params_.precision.x = 450;
+    material_box_create_params_.precision.z = 450;
 }
 
 void CAMGUI::RenderMainWindow(){
@@ -52,8 +52,6 @@ void CAMGUI::RenderMainWindow(){
         RenderCutterSection();
     if(ImGui::CollapsingHeader("Material Box"))
         RenderMaterialBoxSection();
-    if(ImGui::CollapsingHeader("Controls"))
-        RenderControlsInfoSection();
     ImGui::End();
 }
 
@@ -74,12 +72,6 @@ void CAMGUI::RenderMenuBar(){
         }
         ImGui::EndMenuBar();
     }
-}
-
-void CAMGUI::RenderControlsInfoSection(){
-    ImGui::BulletText("F1: Scene Controls");
-    ImGui::BulletText("F2: GUI Controls");
-    ImGui::BulletText("Set parameters and press\nCreate/Reset to apply");
 }
 
 void CAMGUI::RenderSimulationInfoSection(){

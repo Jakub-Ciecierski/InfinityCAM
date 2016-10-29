@@ -45,6 +45,7 @@ void CutterSimulation::Update() {
     }
     if(!CanUpdate())
         return;
+
     if(!SatisfiesTimeDelta())
         return;
 

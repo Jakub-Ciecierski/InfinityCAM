@@ -26,6 +26,11 @@ public:
             MaterialBoxDimensions dimensions,
             HeightMap* height_map);
 
+    std::shared_ptr<RenderObject> CreateMaterialBoxRenderObject(
+            MaterialBoxPrecision precision,
+            MaterialBoxDimensions dimensions,
+            HeightMap* height_map);
+
     std::shared_ptr<RenderObject> CreatePlane();
 
 private:

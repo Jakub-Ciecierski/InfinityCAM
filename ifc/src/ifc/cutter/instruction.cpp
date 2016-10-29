@@ -30,12 +30,6 @@ void Instruction::Parse(std::string instruction_str){
     position_.x = GetPosition(instruction_str, X);
     position_.y = GetPosition(instruction_str, Y);
     position_.z = GetPosition(instruction_str, Z);
-
-
-    std::cout << instruction_str << std::endl;
-    std::cout << ToString() << std::endl;
-    std::cout << std::endl;
-
 }
 
 int Instruction::GetID(std::string instruction_str){

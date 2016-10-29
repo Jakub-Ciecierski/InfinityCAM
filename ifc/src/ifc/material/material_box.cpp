@@ -13,10 +13,12 @@ MaterialBox::MaterialBox(MaterialBoxCreateParams params) :
             new HeightMap(params.precision.x,
                           params.precision.z,
                           params.dimensions.depth));
-    box_render_object_ =
-            MaterialBoxFactory().CreateTexelledBox(params.precision,
-                                                   params.dimensions,
-                                                   height_map_.get());
+
+    box_render_object_
+            = MaterialBoxFactory().
+            CreateMaterialBoxRenderObject(params.precision,
+                                          params.dimensions,
+                                          height_map_.get());
 }
 
 MaterialBox::~MaterialBox(){}

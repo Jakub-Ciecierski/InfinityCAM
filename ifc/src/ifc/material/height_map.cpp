@@ -1,5 +1,6 @@
 #include <iostream>
 #include <factory/texture_factory.h>
+#include <ifc/measures.h>
 #include "ifc/material/height_map.h"
 
 #include "shaders/textures/texture_loader.h"
@@ -16,9 +17,19 @@ HeightMap::HeightMap(int width, int height, float max_height){
 
     texture_data_.data_.resize(count);
 
-    for(int i = 0; i < count;i++){
-        texture_data_.data_[i] = 1;
+    for(int i = 0; i < count; i++){
+        texture_data_.data_[i] = MillimetersToGL(max_height);
     }
+
+    for(int i = 0; i < count; i+=width){
+        texture_data_.data_[i] = 0;
+        if(i != 0)
+            texture_data_.data_[i-1] = 0;
+    }
+    for(int i = 0; i < height; i++)
+        texture_data_.data_[i] = 0;
+    for(int i = count-1; i > count-1 - height; i--)
+        texture_data_.data_[i] = 0;
 
     texture_data_.texture
             = TextureLoader().
@@ -26,6 +37,13 @@ HeightMap::HeightMap(int width, int height, float max_height){
                                TextureInternalFormat::R,
                                TexturePixelType::FLOAT,
                                width, height);
+
+    texture_data_.texture.AddParameter(TextureParameter{
+            GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE
+    });
+    texture_data_.texture.AddParameter(TextureParameter{
+            GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE
+    });
     texture_data_.texture.AddParameter(TextureParameter{
             GL_TEXTURE_MIN_FILTER, GL_LINEAR
     });
@@ -40,24 +58,19 @@ HeightMap::~HeightMap(){
 }
 
 float HeightMap::GetHeight(int i){
-    return texture_data_.data_[i] * texture_data_.max_height;
-}
+    //return texture_data_.data_[i] * texture_data_.max_height;
 
-void HeightMap::SetHeight(int i, int j, float height){
-    int k = i*texture_data_.width + j;
-    if(height > texture_data_.max_height)
-        height = texture_data_.max_height;
+    return GLToMillimeters(texture_data_.data_[i]);
 
-    texture_data_.data_[k] = height / texture_data_.max_height;
 }
 
 bool HeightMap::SetHeight(int i, float height){
     if(height > GetHeight(i))
         return false;
 
-    texture_data_.data_[i] = height / texture_data_.max_height;
+    //texture_data_.data_[i] = height / texture_data_.max_height;
+    texture_data_.data_[i] = MillimetersToGL(height);
     return true;
-    //texture_data_.data_[i] = height;
 }
 
 void HeightMap::Update(){
