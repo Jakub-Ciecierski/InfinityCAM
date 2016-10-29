@@ -19,6 +19,7 @@ CutterSimulation::~CutterSimulation(){}
 
 void CutterSimulation::SetMaterialBox(
         std::shared_ptr<MaterialBox> material_box){
+    Pause();
     if(material_box_){
         scene_->DeleteRenderObject(
                 material_box_->box_render_object().get());
@@ -30,6 +31,7 @@ void CutterSimulation::SetMaterialBox(
 }
 
 void CutterSimulation::SetCutter(std::shared_ptr<Cutter> cutter){
+    Pause();
     if(cutter_){
         scene_->DeleteRenderObject(cutter_->render_object().get());
     }
