@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.3)
+
 set(APP_NAME "ifc")
 project(${APP_NAME})
 
@@ -6,9 +7,13 @@ set(INC_DIR include)
 set(SRC_DIR src)
 set(DEPS_DIR dependencies)
 
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ./bin)
+
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ./bin)
+add_definitions(
+        -DGLEW_STATIC
+)
 
 #---------------------------------
 # MACROS
@@ -94,11 +99,12 @@ include_directories($ENV{IFX_ROOT}/${DEPS_DIR}/SOIL/src)
 
 #
 include_directories($ENV{IFX_ROOT}/${DEPS_DIR}/glm/${INC_DIR})
+
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIRS})
 
-find_package(GLEW REQUIRED)
-include_directories(${GLEW_INCLUDE_DIRS})
+add_subdirectory($ENV{IFX_ROOT}/${DEPS_DIR}/glew-2.0.0 ./build/glew-2.0.0)
+include_directories($ENV{IFX_ROOT}/${DEPS_DIR}/glew-2.0.0/include)
 
 #---------------------------------
 # LINK
@@ -111,8 +117,9 @@ target_link_libraries(${APP_NAME}
         vr_ifx game_loop_ifx
         gui_ifx)
 
-target_link_libraries(${APP_NAME}
-        glfw SOIL assimp ${GLFW_LIBRARIES})
+target_link_libraries(${APP_NAME} SOIL)
+target_link_libraries(${APP_NAME} assimp)
+target_link_libraries(${APP_NAME} glfw ${GLFW_LIBRARIES})
 
-target_link_libraries(${APP_NAME}
-        ${OPENGL_LIBRARIES} ${GLEW_LIBRARIES})
+target_link_libraries(${APP_NAME} ${OPENGL_LIBRARIES})
+target_link_libraries(${APP_NAME} glew20)

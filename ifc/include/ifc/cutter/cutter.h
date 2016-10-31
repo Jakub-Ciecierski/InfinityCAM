@@ -79,7 +79,7 @@ private:
     void ChangeInstruction();
 
     void UpdateT(float t_delta);
-    glm::vec3 ComputeCurrentPosition();
+    void ComputeCurrentPosition();
     void Move();
     void Cut(HeightMap* height_map);
     void CutSphere(HeightMap* height_map);

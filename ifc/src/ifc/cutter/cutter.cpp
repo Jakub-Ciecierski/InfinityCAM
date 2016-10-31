@@ -85,7 +85,7 @@ void Cutter::UpdateT(float t_delta){
         current_vector_equation_.t = current_vector_equation_.t_max;
 }
 
-glm::vec3 Cutter::ComputeCurrentPosition(){
+void Cutter::ComputeCurrentPosition(){
     current_position_ = current_vector_equation_.Compute();
 }
 
