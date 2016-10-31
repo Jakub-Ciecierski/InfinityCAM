@@ -6,8 +6,6 @@
 
 #include "ifc/gui/cam_gui.h"
 
-#include <dirent.h>
-
 namespace ifc {
 
 CAMGUI::CAMGUI(GLFWwindow* window, ifx::Scene* scene,
