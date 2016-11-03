@@ -28,6 +28,10 @@ std::shared_ptr<Cutter> CutterLoader::Load(){
 }
 
 CutterType CutterLoader::GetType(){
+    std::ifstream file(path_);
+    if(!file.is_open())
+        return CutterType::UNKNOWN;
+
     std::vector<std::string> split_path = ifx::SplitString(path_, ".");
     std::string format = split_path[split_path.size()-1];
 

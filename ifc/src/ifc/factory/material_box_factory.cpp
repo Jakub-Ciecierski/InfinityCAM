@@ -240,10 +240,10 @@ MaterialBoxFactory::CreateMaterialBoxRenderObject(
 
     renderObject->SetBeforeRender([height_map](
             const Program* program){
-        glActiveTexture(GL_TEXTURE0);
+        glActiveTexture(GL_TEXTURE1);
         height_map->texture_data()->texture.Bind();
         glUniform1i(glGetUniformLocation(program->getID(),
-                                         "height_map"), 0);
+                                         "height_map"), 1);
     });
 
     return renderObject;
