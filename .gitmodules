@@ -1,3 +1,6 @@
 [submodule "InfinityXLib"]
 	path = InfinityXLib
 	url = https://github.com/Jakub-Ciecierski/InfinityXLib
+[submodule "InfinityCAD"]
+	path = InfinityCAD
+	url = https://github.com/Jakub-Ciecierski/InfinityCAD

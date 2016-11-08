@@ -106,6 +106,27 @@ include_directories(${OPENGL_INCLUDE_DIRS})
 add_subdirectory($ENV{IFX_ROOT}/${DEPS_DIR}/glew-2.0.0 ./build/glew-2.0.0)
 include_directories($ENV{IFX_ROOT}/${DEPS_DIR}/glew-2.0.0/include)
 
+#----------------------------------
+# InfinityCAD
+#----------------------------------
+
+execute_process(
+        COMMAND qmake -qt=qt4
+        COMMAND make
+        WORKING_DIRECTORY ../InfinityCAD/apps/ifc_editor_qt)
+
+include_directories(../InfinityCAD/${DEPS_DIR}/include/error)
+include_directories(../InfinityCAD/${DEPS_DIR}/include/glm)
+include_directories(../InfinityCAD/${DEPS_DIR}/include/ifc)
+include_directories(../InfinityCAD/${DEPS_DIR}/include/ifcgpu)
+include_directories(../InfinityCAD/${DEPS_DIR}/include/logger)
+include_directories(../InfinityCAD/${DEPS_DIR}/include/math)
+include_directories(../InfinityCAD/${DEPS_DIR}/include/parallel)
+include_directories(../InfinityCAD/${DEPS_DIR}/include/pso)
+include_directories(../InfinityCAD/${DEPS_DIR}/include/rc)
+include_directories(../InfinityCAD/${DEPS_DIR}/include/strings)
+include_directories(../InfinityCAD/${DEPS_DIR}/include/time)
+
 #---------------------------------
 # LINK
 #---------------------------------
@@ -116,6 +137,19 @@ target_link_libraries(${APP_NAME}
         lighting_ifx object_ifx resources_ifx controls_ifx
         vr_ifx game_loop_ifx
         gui_ifx)
+
+target_link_libraries(${APP_NAME}
+        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/ifc/libifc.so
+        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/ifcgpu/libifcgpu.so
+        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/glm/libglm.so
+        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/rc/librc.so
+        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/math/libmath.so
+        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/strings/libstrings.so
+        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/parallel/libparallel.so
+        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/pso/libpso.so
+        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/time/libtime.so
+        $ENV{CUDA_HOME}/lib64/libcudart.so
+        )
 
 target_link_libraries(${APP_NAME} SOIL)
 target_link_libraries(${APP_NAME} assimp)
