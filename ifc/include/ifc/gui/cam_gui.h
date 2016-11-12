@@ -4,12 +4,15 @@
 #include <gui/gui.h>
 #include <ifc/material/material_box.h>
 #include <ifc/cutter/cutter_simulation.h>
+#include <ifc/gui/simulation_gui.h>
+#include <ifc/gui/path_generation_gui.h>
 
 #include <memory>
 
-class RenderObject;
 namespace ifx{
-    class Scene;
+class Scene;
+class SceneWindowGUI;
+class RenderObject;
 }
 
 namespace ifc {
@@ -17,49 +20,17 @@ namespace ifc {
 class CAMGUI : public ifx::GUI{
 public:
     CAMGUI(GLFWwindow* window,
-           ifx::Scene* scene,
-           std::shared_ptr<RenderObject> plane,
+           std::shared_ptr<ifx::Scene> scene,
+           std::shared_ptr<ifx::RenderObject> plane,
            std::shared_ptr<CutterSimulation> simulation);
     ~CAMGUI();
 
     virtual void Render() override;
 
 private:
-    void SetDefaultParameters();
-
-    void RenderMainWindow();
-    void RenderDebugWindow();
-
-    void RenderMenuBar();
-
-    void RenderSimulationInfoSection();
-    void RenderSimulationRequirements();
-    void RenderSimulationControl();
-    void RenderSimulationError();
-
-    void RenderCutterSection();
-    void RenderLoadCutter();
-
-    void RenderMaterialBoxSection();
-    void RenderMaterialBoxDimensions();
-    void RenderMaterialBoxPrecision();
-    void ResetSimulation();
-
-    void RenderDebugSection();
-    void RenderPlane();
-    void RenderExample();
-    void RenderCameraInfo();
-    void RenderPolygonMode();
-
-    void RenderErrorWindow();
-
-    ifx::Scene* scene_;
-
-    MaterialBoxCreateParams material_box_create_params_;
-
-    std::shared_ptr<RenderObject> plane_;
-
-    std::shared_ptr<CutterSimulation> simulation_;
+    std::unique_ptr<SimulationGUI> simulation_gui_;
+    std::unique_ptr<PathGenerationGUI> path_generation_gui_;
+    std::unique_ptr<ifx::SceneWindowGUI> scene_window_gui_;
 };
 
 }

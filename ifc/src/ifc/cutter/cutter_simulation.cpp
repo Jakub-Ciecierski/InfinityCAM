@@ -5,7 +5,7 @@
 
 namespace ifc {
 
-CutterSimulation::CutterSimulation(ifx::Scene* scene) :
+CutterSimulation::CutterSimulation(std::shared_ptr<ifx::Scene> scene) :
         scene_(scene),
         time_delta_(0.001),
         current_update_time_(0),

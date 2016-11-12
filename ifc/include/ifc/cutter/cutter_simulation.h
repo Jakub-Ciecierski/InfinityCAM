@@ -13,7 +13,7 @@ namespace ifc {
 class CutterSimulation : public ifx::Simulation {
 public:
 
-    CutterSimulation(ifx::Scene* scene);
+    CutterSimulation(std::shared_ptr<ifx::Scene> scene);
     ~CutterSimulation();
 
     std::shared_ptr<MaterialBox> material_box(){return material_box_;}
@@ -43,7 +43,7 @@ private:
     std::shared_ptr<MaterialBox> material_box_;
     std::shared_ptr<Cutter> cutter_;
 
-    ifx::Scene* scene_;
+    std::shared_ptr<ifx::Scene> scene_;
 
     float time_delta_;
     float current_update_time_;

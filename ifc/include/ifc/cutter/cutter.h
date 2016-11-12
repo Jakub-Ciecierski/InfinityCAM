@@ -57,8 +57,8 @@ public:
     float diameter(){return diameter_;}
     const std::vector<Instruction>& instructions(){return instructions_;}
     const glm::vec3& current_position(){return current_position_;}
-    std::shared_ptr<RenderObject> render_object(){return render_object_;}
-    void render_object(std::shared_ptr<RenderObject> render_obj){
+    std::shared_ptr<ifx::RenderObject> render_object(){return render_object_;}
+    void render_object(std::shared_ptr<ifx::RenderObject> render_obj){
         render_object_ = render_obj;
         current_position_ = start_position_mm_;
         Move();
@@ -90,7 +90,7 @@ private:
     float diameter_;
     float radius_;
     std::vector<Instruction> instructions_;
-    std::shared_ptr<RenderObject> render_object_;
+    std::shared_ptr<ifx::RenderObject> render_object_;
 
     int current_intruction_;
     InstructionVectorEquation current_vector_equation_;

@@ -26,12 +26,12 @@ public:
             MaterialBoxDimensions dimensions,
             HeightMap* height_map);
 
-    std::shared_ptr<RenderObject> CreateMaterialBoxRenderObject(
+    std::shared_ptr<ifx::RenderObject> CreateMaterialBoxRenderObject(
             MaterialBoxPrecision precision,
             MaterialBoxDimensions dimensions,
             HeightMap* height_map);
 
-    std::shared_ptr<RenderObject> CreatePlane();
+    std::shared_ptr<ifx::RenderObject> CreatePlane();
 
 private:
 };

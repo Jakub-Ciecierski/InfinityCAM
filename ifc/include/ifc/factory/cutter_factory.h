@@ -6,6 +6,10 @@
 
 #include <memory>
 
+namespace ifx{
+class Texture2D;
+}
+
 namespace ifc {
 
 class CutterFactory {
@@ -17,13 +21,12 @@ public:
     std::shared_ptr<Cutter> CreateCutter(std::string filepath);
 
 private:
-    std::shared_ptr<RenderObject> CreateSphereCutterRenderObject(
+    std::shared_ptr<ifx::RenderObject> CreateSphereCutterRenderObject(
             float diameter);
-    std::shared_ptr<RenderObject> CreateFlatCutterRenderObject(
+    std::shared_ptr<ifx::RenderObject> CreateFlatCutterRenderObject(
             float diameter);
 
-    std::vector<Texture> CreateCutterHandleTextures();
-    std::vector<Texture> CreateCutterBladeTextures();
+    std::vector<std::shared_ptr<ifx::Texture2D>> CreateCutterBladeTextures();
 };
 
 }

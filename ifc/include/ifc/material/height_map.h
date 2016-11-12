@@ -2,11 +2,12 @@
 #define PROJECT_HEIGHT_MAP_H
 
 #include <shaders/data/shader_data.h>
+#include <shaders/textures/texture.h>
 
 namespace ifc {
 
 struct HeightMapTextureData{
-    Texture texture;
+    std::shared_ptr<ifx::Texture2D> texture;
     std::vector<float> data_;
 
     int width;

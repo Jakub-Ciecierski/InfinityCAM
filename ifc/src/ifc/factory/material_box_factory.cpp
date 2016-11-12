@@ -111,7 +111,7 @@ MaterialBoxFactory::CreateTexelledBox(MaterialBoxPrecision precision,
                     precision.z);
 
         glActiveTexture(GL_TEXTURE0);
-        height_map->texture_data()->texture.Bind();
+        height_map->texture_data()->texture->Bind();
         glUniform1i(glGetUniformLocation(program->getID(),
                                          "height_map"),
                     0);
@@ -126,32 +126,30 @@ MaterialBoxFactory::CreateTexelledBox(MaterialBoxPrecision precision,
     return instanced_render_object;
 }
 
-std::shared_ptr<RenderObject>
+std::shared_ptr<ifx::RenderObject>
 MaterialBoxFactory::CreateMaterialBoxRenderObject(
         MaterialBoxPrecision precision,
         MaterialBoxDimensions dimensions,
         HeightMap* height_map){
     auto renderObject
-            = std::shared_ptr<RenderObject>(
-                    new RenderObject(ObjectID(0),
+            = std::shared_ptr<ifx::RenderObject>(
+                    new ifx::RenderObject(ObjectID(0, "Material Box"),
                                      ifx::ModelFactory::CreateQuad(
                                              precision.x,
                                              precision.z)));
-    ifx::Resources &resources = ifx::Resources::GetInstance();
-    // cam/box1.png
-    Texture textureDiffuse
-            = TextureLoader().loadTexture(
-                    resources.GetResourcePath("cam/box1.png",
-                                              ifx::ResourceType::TEXTURE),
-                    TextureTypes::DIFFUSE);
-    Texture textureSpecular
-            = TextureLoader().loadTexture(
-                    resources.GetResourcePath("cam/box1.png",
-                                              ifx::ResourceType::TEXTURE),
-                    TextureTypes::SPECULAR);
 
-    renderObject->model()->getMesh(0)->addTexture(textureDiffuse);
-    renderObject->model()->getMesh(0)->addTexture(textureSpecular);
+    renderObject->models()[0]->getMesh(0)->AddTexture(
+            ifx::Texture2D::MakeTexture2DFromFile(
+                    ifx::Resources::GetInstance().GetResourcePath(
+                            "cam/box1_diff.png",
+                            ifx::ResourceType::TEXTURE),
+                    ifx::TextureTypes::DIFFUSE));
+    renderObject->models()[0]->getMesh(0)->AddTexture(
+            ifx::Texture2D::MakeTexture2DFromFile(
+                    ifx::Resources::GetInstance().GetResourcePath(
+                            "cam/box1_spec.png",
+                            ifx::ResourceType::TEXTURE),
+                    ifx::TextureTypes::SPECULAR));
 
     float scaleFactorX = MillimetersToGL(dimensions.x);
     float scaleFactorY = MillimetersToGL((dimensions.x + dimensions.z) / 2.0f);
@@ -217,42 +215,27 @@ MaterialBoxFactory::CreateMaterialBoxRenderObject(
     }
 
     height_map->positions(reordered);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    height_map->positions(reordered);
     renderObject->addProgram(
             ifx::ProgramFactory().LoadHeightmapProgram());
 
     renderObject->SetBeforeRender([height_map](
             const Program* program){
         glActiveTexture(GL_TEXTURE1);
-        height_map->texture_data()->texture.Bind();
+        height_map->texture_data()->texture->Bind();
         glUniform1i(glGetUniformLocation(program->getID(),
                                          "height_map"), 1);
+    });
+    renderObject->SetAfterRender([height_map](const Program* program){
+        height_map->texture_data()->texture->Unbind();
     });
 
     return renderObject;
 }
 
-std::shared_ptr<RenderObject> MaterialBoxFactory::CreatePlane(){
+std::shared_ptr<ifx::RenderObject> MaterialBoxFactory::CreatePlane(){
     auto renderObject
-            = std::shared_ptr<RenderObject>(
-                    new RenderObject(ObjectID(0),
+            = std::shared_ptr<ifx::RenderObject>(
+                    new ifx::RenderObject(ObjectID(0, "Plane"),
                                      ifx::ModelFactory::LoadSquareModel()));
     float scaleFactor = 4.0f;
 

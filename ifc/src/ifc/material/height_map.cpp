@@ -32,29 +32,27 @@ HeightMap::HeightMap(int width, int height, float max_height){
         texture_data_.data_[i] = 0;
 
     texture_data_.texture
-            = TextureLoader().
-            CreateEmptyTexture(TextureTypes::DISPLACEMENT,
-                               TextureInternalFormat::R,
-                               TexturePixelType::FLOAT,
-                               width, height);
-
-    texture_data_.texture.AddParameter(TextureParameter{
+            = ifx::Texture2D::MakeTexture2DEmpty("ifc_height_map",
+                                                 ifx::TextureTypes::DISPLACEMENT,
+                                                 ifx::TextureInternalFormat::R,
+                                                 ifx::TexturePixelType::FLOAT,
+                                                 width, height);
+    texture_data_.texture->AddParameter(ifx::TextureParameter{
             GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE
     });
-    texture_data_.texture.AddParameter(TextureParameter{
+    texture_data_.texture->AddParameter(ifx::TextureParameter{
             GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE
     });
-    texture_data_.texture.AddParameter(TextureParameter{
+    texture_data_.texture->AddParameter(ifx::TextureParameter{
             GL_TEXTURE_MIN_FILTER, GL_LINEAR
     });
-    texture_data_.texture.AddParameter(TextureParameter{
+    texture_data_.texture->AddParameter(ifx::TextureParameter{
             GL_TEXTURE_MAG_FILTER, GL_LINEAR
     });
     Update();
 }
 
 HeightMap::~HeightMap(){
-    texture_data_.texture.Delete();
 }
 
 float HeightMap::GetHeight(int i){
@@ -74,8 +72,8 @@ bool HeightMap::SetHeight(int i, float height){
 }
 
 void HeightMap::Update(){
-    texture_data_.texture.UpdateData(
-            texture_data_.data_.data(),
+    texture_data_.texture->InitData(
+            (void*)texture_data_.data_.data(),
             texture_data_.width,
             texture_data_.height
     );

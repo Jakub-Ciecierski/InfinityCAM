@@ -41,7 +41,7 @@ public:
     MaterialBox(MaterialBoxCreateParams params);
     ~MaterialBox();
 
-    std::shared_ptr<RenderObject>
+    std::shared_ptr<ifx::RenderObject>
     box_render_object(){return box_render_object_;}
 
     HeightMap* height_map(){return height_map_.get();}
@@ -51,7 +51,7 @@ public:
     void Update();
 
 private:
-    std::shared_ptr<RenderObject> box_render_object_;
+    std::shared_ptr<ifx::RenderObject> box_render_object_;
     std::unique_ptr<HeightMap> height_map_;
 
     MaterialBoxDimensions dimensions_;
