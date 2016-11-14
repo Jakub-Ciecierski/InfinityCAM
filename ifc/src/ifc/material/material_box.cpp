@@ -12,6 +12,7 @@ MaterialBox::MaterialBox(MaterialBoxCreateParams params) :
             = std::unique_ptr<HeightMap>(
             new HeightMap(params.precision.x,
                           params.precision.z,
+                          dimensions_.x, dimensions_.z,
                           params.dimensions.depth));
 
     box_render_object_

@@ -9,19 +9,33 @@ class Scene;
 
 namespace ifc {
 
+struct CADModelLoaderResult;
+
+class CutterSimulation;
+class MaterialBox;
+class PathGenerator;
+
 class PathGenerationGUI {
 public:
 
-    PathGenerationGUI(std::shared_ptr<ifx::Scene> scene);
+    PathGenerationGUI(std::shared_ptr<ifx::Scene> scene,
+                      std::shared_ptr<CutterSimulation> simulation);
     ~PathGenerationGUI();
 
     void Render();
 
 private:
     void RenderMainWindow();
+
     void RenderLoadModel();
 
+    void RenderPathGeneration();
+
     std::shared_ptr<ifx::Scene> scene_;
+    std::shared_ptr<CutterSimulation> simulation_;
+    std::shared_ptr<PathGenerator> path_generator_;
+
+    std::shared_ptr<CADModelLoaderResult> cad_model_loader_result_;
 };
 }
 

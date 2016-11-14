@@ -4,7 +4,6 @@
 #include <factory/model_factory.h>
 #include <factory/program_factory.h>
 #include <ifc/material/height_map.h>
-#include <shaders/textures/texture_loader.h>
 
 namespace ifc {
 
@@ -137,19 +136,20 @@ MaterialBoxFactory::CreateMaterialBoxRenderObject(
                                      ifx::ModelFactory::CreateQuad(
                                              precision.x,
                                              precision.z)));
-
-    renderObject->models()[0]->getMesh(0)->AddTexture(
+    auto material = std::make_shared<ifx::Material>();
+    material->AddTexture(
             ifx::Texture2D::MakeTexture2DFromFile(
                     ifx::Resources::GetInstance().GetResourcePath(
                             "cam/box1_diff.png",
                             ifx::ResourceType::TEXTURE),
                     ifx::TextureTypes::DIFFUSE));
-    renderObject->models()[0]->getMesh(0)->AddTexture(
+    material->AddTexture(
             ifx::Texture2D::MakeTexture2DFromFile(
                     ifx::Resources::GetInstance().GetResourcePath(
                             "cam/box1_spec.png",
                             ifx::ResourceType::TEXTURE),
                     ifx::TextureTypes::SPECULAR));
+    renderObject->models()[0]->getMesh(0)->material(material);
 
     float scaleFactorX = MillimetersToGL(dimensions.x);
     float scaleFactorY = MillimetersToGL((dimensions.x + dimensions.z) / 2.0f);
@@ -162,7 +162,6 @@ MaterialBoxFactory::CreateMaterialBoxRenderObject(
                                    0,
                                    -MillimetersToGL(dimensions.z/2.0f)));
 
-
     float single_box_scale_x
             = MillimetersToGL(dimensions.x) / (float)precision.x;
     float single_box_scale_z
@@ -170,11 +169,18 @@ MaterialBoxFactory::CreateMaterialBoxRenderObject(
     float single_box_scale_y =
             MillimetersToGL(dimensions.depth);
 
-
     float dx = 1.0f * single_box_scale_x;
     float dz = 1.0f * single_box_scale_z;
     float x_translate = 0.0f;
     float z_translate = 0.0f;
+    const float const_single_box_scale_x
+            = -MillimetersToGL(dimensions.x / 2.0f);
+    const float const_single_box_scale_z
+            = -MillimetersToGL(dimensions.z / 2.0f);
+    PositionInfo position_info{single_box_scale_x, single_box_scale_z,
+                               const_single_box_scale_x,
+                               const_single_box_scale_z};
+    height_map->position_info(position_info);
 
     int i = 0;
     std::vector<glm::vec2> positions;
@@ -184,14 +190,16 @@ MaterialBoxFactory::CreateMaterialBoxRenderObject(
         for(int z = 0; z < precision.z; z++){
             ifx::MovableObject model_object(ObjectID(0));
             model_object.move(glm::vec3(x_translate, 0.0f, z_translate));
+            model_object.move(
+                    glm::vec3(const_single_box_scale_x,
+                              0.0f,
+                              const_single_box_scale_z));
+            /*
             model_object.scale(glm::vec3(single_box_scale_x,
                                          single_box_scale_y,
-                                         single_box_scale_z));
+                                         single_box_scale_z));*/
 
-            model_object.move(
-                    glm::vec3(-MillimetersToGL(dimensions.x / 2.0f),
-                              0.0f,
-                              -MillimetersToGL(dimensions.z / 2.0f)));
+
 
             positions[i] = glm::vec2(model_object.getPosition().x,
                                      model_object.getPosition().z);

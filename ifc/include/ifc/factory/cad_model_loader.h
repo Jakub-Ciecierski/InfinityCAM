@@ -17,13 +17,22 @@ class RenderObject;
 
 namespace ifc {
 
+struct CADModel{
+    std::vector<std::shared_ptr<SurfaceC2Cylind>> surfaces;
+};
+
+struct CADModelLoaderResult{
+    std::shared_ptr<CADModel> cad_model;
+    std::shared_ptr<ifx::RenderObject> render_object;
+};
+
 class CADModelLoader {
 public:
 
     CADModelLoader();
     ~CADModelLoader();
 
-    std::shared_ptr<ifx::RenderObject> Load(std::string path);
+    std::shared_ptr<CADModelLoaderResult> Load(std::string path);
 
 private:
     std::shared_ptr<ifx::RenderObject> CreateRenderObject(

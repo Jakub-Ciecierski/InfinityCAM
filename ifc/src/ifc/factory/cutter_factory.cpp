@@ -2,7 +2,6 @@
 
 #include <ifc/cutter/cutter_loader.h>
 #include <factory/mesh_factory.h>
-#include <shaders/textures/texture_loader.h>
 #include <shaders/textures/texture.h>
 #include <ifc/measures.h>
 #include <factory/program_factory.h>
@@ -38,9 +37,11 @@ std::shared_ptr<ifx::RenderObject> CutterFactory::CreateSphereCutterRenderObject
 
     std::vector<std::shared_ptr<ifx::Texture2D>> blade_textures
             =  CreateCutterBladeTextures();
+    auto material = std::make_shared<ifx::Material>();
     for(int i = 0; i < blade_textures.size(); i++)
-        blade_mesh->AddTexture(blade_textures[i]);
+        material->AddTexture(blade_textures[i]);
 
+    blade_mesh->material(material);
     std::vector<std::unique_ptr<ifx::Mesh>> meshes;
     //meshes.push_back(std::move(handle_mesh));
     meshes.push_back(std::move(blade_mesh));
@@ -64,8 +65,10 @@ std::shared_ptr<ifx::RenderObject> CutterFactory::CreateFlatCutterRenderObject(
 
     std::vector<std::shared_ptr<ifx::Texture2D>> blade_textures
             =  CreateCutterBladeTextures();
+    auto material = std::make_shared<ifx::Material>();
     for(int i = 0; i < blade_textures.size(); i++)
-        blade_mesh->AddTexture(blade_textures[i]);
+        material->AddTexture(blade_textures[i]);
+    blade_mesh->material(material);
 
     std::vector<std::unique_ptr<ifx::Mesh>> meshes;
     //meshes.push_back(std::move(handle_mesh));

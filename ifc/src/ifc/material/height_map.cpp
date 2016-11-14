@@ -3,17 +3,21 @@
 #include <ifc/measures.h>
 #include "ifc/material/height_map.h"
 
-#include "shaders/textures/texture_loader.h"
-
 namespace ifc {
 
-HeightMap::HeightMap(int width, int height, float max_height){
+HeightMap::HeightMap(int width, int height,
+                     float width_mm, float height_mm,
+                     float max_height){
     texture_data_.width = width;
     texture_data_.height = height;
     texture_data_.max_height = max_height;
 
     int count = width*height;
     positions_.resize(count);
+
+
+    row_width_ = width / width_mm;
+    column_width_ = height / height_mm;
 
     texture_data_.data_.resize(count);
 
@@ -55,18 +59,36 @@ HeightMap::HeightMap(int width, int height, float max_height){
 HeightMap::~HeightMap(){
 }
 
+float HeightMap::GetHeight(int i, int j){
+    return GLToMillimeters(texture_data_.data_[Index(i,j)]);
+}
+
+const glm::vec2& HeightMap::GetPosition(int i, int j){
+    return positions_[Index(i,j)];
+}
+
+bool HeightMap::SetHeight(int i, int j, float height){
+    if(height > GetHeight(Index(i,j)))
+        return false;
+    texture_data_.data_[Index(i,j)] = MillimetersToGL(height);
+    return true;
+}
+
+glm::vec2 HeightMap::GetIndices(const glm::vec2& pos){
+    int i = (pos.x - position_info_.const_single_box_scale_x) /
+            position_info_.single_box_scale_x;
+    int j = (pos.y - position_info_.const_single_box_scale_z) /
+            position_info_.single_box_scale_z;
+    return glm::vec2(i,j);
+}
+
 float HeightMap::GetHeight(int i){
-    //return texture_data_.data_[i] * texture_data_.max_height;
-
     return GLToMillimeters(texture_data_.data_[i]);
-
 }
 
 bool HeightMap::SetHeight(int i, float height){
     if(height > GetHeight(i))
         return false;
-
-    //texture_data_.data_[i] = height / texture_data_.max_height;
     texture_data_.data_[i] = MillimetersToGL(height);
     return true;
 }
@@ -77,6 +99,11 @@ void HeightMap::Update(){
             texture_data_.width,
             texture_data_.height
     );
+}
+
+int HeightMap::Index(int i, int j){
+    //return i*texture_data_.width + j;
+    return j*texture_data_.width + i;
 }
 
 }

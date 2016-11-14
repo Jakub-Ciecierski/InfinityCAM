@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <sstream>
+#include <iomanip>
 
 namespace {
 float USE_PREVIOUS_POSITION = -99999.9;
@@ -20,6 +21,16 @@ Instruction::Instruction(std::string instruction_str) :
         raw_(instruction_str){
     Parse(instruction_str);
 }
+
+Instruction::Instruction(int id,
+                         const glm::vec3& position,
+                         InstructionSpeedMode speed_mode) :
+        id_(id),
+        position_(position),
+        speed_mode_(speed_mode){
+    raw_ = ConstructRaw(id_, position_, speed_mode_);
+}
+
 Instruction::~Instruction(){}
 
 
@@ -88,6 +99,60 @@ float Instruction::GetPosition(std::string instruction_str, char dim){
     }else{
         return USE_PREVIOUS_POSITION;
     }
+}
+
+std::string Instruction::ConstructRaw(int id,
+                                      const glm::vec3& position,
+                                      InstructionSpeedMode speed_mode){
+    std::string raw_instruction = "";
+
+    raw_instruction = AppendID(raw_instruction, id);
+    raw_instruction = AppendSpeedMode(raw_instruction, speed_mode);
+    raw_instruction = AppendPosition(raw_instruction, position);
+
+    return raw_instruction;
+}
+
+std::string Instruction::AppendID(std::string current_raw, int id){
+    std::string raw = current_raw;
+    raw += N;
+    raw += std::to_string(id);
+    return raw;
+}
+
+std::string Instruction::AppendSpeedMode(std::string current_raw,
+                                         InstructionSpeedMode speed_mode){
+    std::string raw = current_raw;
+    if(speed_mode == InstructionSpeedMode::NORMAL)
+        raw += G01;
+    else if (speed_mode == InstructionSpeedMode::FAST)
+        raw += G00;
+
+    return raw;
+}
+
+std::string Instruction::AppendPosition(std::string current_raw,
+                                        const glm::vec3& position){
+    std::string raw = current_raw;
+
+    raw += X;
+    raw += ToStringWithPrecision(position.x);
+
+    raw += Y;
+    raw += ToStringWithPrecision(position.y);
+
+    raw += Z;
+    raw += ToStringWithPrecision(position.z);
+
+    return raw;
+}
+
+std::string Instruction::ToStringWithPrecision(float d){
+    std::stringstream stream;
+    const int presition = 3;
+    stream << std::fixed << std::setprecision(presition) << d;
+
+    return stream.str();
 }
 
 std::string  Instruction::ToString(){

@@ -19,6 +19,7 @@ struct MaterialBoxDimensions{
     float x;
     float z;
     float depth;
+    // maximum depth from milling machine perspective (i.e. from the top).
     float max_depth;
 };
 

@@ -30,8 +30,8 @@ void SimulationGUI::SetDefaultParameters(){
     material_box_create_params_.dimensions.depth = 50;
     material_box_create_params_.dimensions.max_depth = 30;
 
-    material_box_create_params_.precision.x = 450;
-    material_box_create_params_.precision.z = 450;
+    material_box_create_params_.precision.x = 50;
+    material_box_create_params_.precision.z = 50;
 }
 
 void SimulationGUI::RenderMainWindow(){
@@ -129,7 +129,7 @@ void SimulationGUI::RenderCutterSection(){
 void SimulationGUI::RenderLoadCutter(){
     int size = 1024;
     //"jakub/programming/InfinityCAM/ifc/res/paths/t1.k16";
-    static char filepath[1024] = "t1.k16";
+    static char filepath[1024] = "jc_t1.k16";
 
     if(ImGui::TreeNode("Cutter")){
         if (ImGui::Button("Load Cutter")) {
@@ -245,15 +245,6 @@ void SimulationGUI::RenderCameraInfo(){
 void SimulationGUI::RenderPolygonMode(){
     static bool render_textures = true;
     ImGui::Checkbox("Render Textures", &render_textures);
-
-    GLenum polygon_mode = GL_FILL;
-    if(!render_textures)
-        polygon_mode = GL_LINES;
-
-    if(simulation_->material_box()){
-        simulation_->material_box()->box_render_object()->
-                models()[0]->getMesh(0)->setPolygonMode(polygon_mode);
-    }
 }
 
 }

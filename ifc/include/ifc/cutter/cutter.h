@@ -72,6 +72,13 @@ public:
     void Update(MaterialBox* material_box, float t_delta);
     bool Finished();
 
+    /**
+     * Saves cutter to file as set of instructions.
+     */
+    bool SaveToFile(std::string filename);
+    std::string GetFileExtention(CutterType type,
+                                 float diameter);
+
 private:
     CutterStatus CheckErrors(MaterialBox* material_box);
 

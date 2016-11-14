@@ -12,6 +12,8 @@ void InitCamera(ifx::GameLoop* game_loop);
 
 void InitGUI(ifx::GameLoop* game_loop){
     auto plane = ifc::MaterialBoxFactory().CreatePlane();
+    plane->models()[0]->getMesh(0)->polygon_mode(ifx::PolygonMode::LINE);
+
     game_loop->renderer()->scene()->AddRenderObject(plane);
 
     auto simulation = std::shared_ptr<ifc::CutterSimulation>(

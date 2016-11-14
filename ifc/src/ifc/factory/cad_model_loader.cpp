@@ -5,7 +5,6 @@
 #include <model/patch/patch.h>
 #include <factory/texture_factory.h>
 #include <factory/program_factory.h>
-#include <shaders/textures/texture_loader.h>
 #include <shaders/loaders/program_loader.h>
 
 namespace ifc {
@@ -18,12 +17,17 @@ CADModelLoader::~CADModelLoader(){
 
 }
 
-std::shared_ptr<ifx::RenderObject> CADModelLoader::Load(std::string path){
+std::shared_ptr<CADModelLoaderResult> CADModelLoader::Load(std::string path){
     path_ = path;
     DeserializationScene deserialization;
     deserialization.load(path);
 
-    return CreateRenderObject(deserialization.surfaces());
+    auto result = std::make_shared<CADModelLoaderResult>();
+    result->cad_model = std::shared_ptr<CADModel>(new CADModel());
+    result->cad_model->surfaces = deserialization.surfaces();
+    result->render_object = CreateRenderObject(deserialization.surfaces());
+
+    return result;
 }
 
 std::shared_ptr<ifx::RenderObject> CADModelLoader::CreateRenderObject(
@@ -94,26 +98,23 @@ std::unique_ptr<ifx::Mesh> CADModelLoader::CreateMesh(
 
     auto mesh = std::unique_ptr<ifx::Mesh>(
             new ifx::Patch(vertices, indices,
+                           ifx::TesselationParams{
                            2.0f, 2.0f, vertices.size(),
-                           id_i, id_j, n, m));
-    mesh->AddTexture(
+                           id_i, id_j, n, m}));
+    auto material = std::make_shared<ifx::Material>();
+    material->AddTexture(
             ifx::Texture2D::MakeTexture2DFromFile(
                     ifx::Resources::GetInstance().GetResourcePath(
                             "cam/box1_diff.png",
                             ifx::ResourceType::TEXTURE),
                     ifx::TextureTypes::DIFFUSE));
-    mesh->AddTexture(
+    material->AddTexture(
             ifx::Texture2D::MakeTexture2DFromFile(
                     ifx::Resources::GetInstance().GetResourcePath(
                             "cam/box1_spec.png",
                             ifx::ResourceType::TEXTURE),
                     ifx::TextureTypes::SPECULAR));
-    mesh->setPolygonMode(GL_FILL);
-    mesh->setPrimitiveMode(GL_PATCHES);
-
-    Material material;
-    material.shininess = 32.0f;
-    mesh->setMaterial(material);
+    mesh->material(material);
 
     return mesh;
 }

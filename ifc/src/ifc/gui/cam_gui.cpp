@@ -13,7 +13,8 @@ CAMGUI::CAMGUI(GLFWwindow* window, std::shared_ptr<ifx::Scene> scene,
                std::shared_ptr<CutterSimulation> simulation)
         : ifx::GUI(window){
     simulation_gui_.reset(new SimulationGUI(scene, plane, simulation));
-    path_generation_gui_.reset(new PathGenerationGUI(scene));
+    path_generation_gui_.reset(new PathGenerationGUI(
+            scene, simulation));
     scene_window_gui_.reset(new ifx::SceneWindowGUI(scene));
 }
 
