@@ -23,7 +23,7 @@ ParametrizationPath::~ParametrizationPath(){ }
 
 std::shared_ptr<Cutter> ParametrizationPath::Generate(){
     std::cout << "4) ParametrizationPath" << std::endl;
-    //ComputeIntersections();
+    ComputeIntersections();
     return CreatePath();
 }
 
@@ -118,6 +118,7 @@ std::shared_ptr<IntersectionData>
 }
 
 std::shared_ptr<Cutter> ParametrizationPath::CreatePath(){
+    // TODO common id
     auto base_instructions = CreateBaseIntructions();
     auto hand_instructions = CreateHandIntructions();
     auto drill_instructions = CreateDrillIntructions();
