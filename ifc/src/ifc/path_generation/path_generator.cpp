@@ -1,6 +1,9 @@
 #include "ifc/path_generation/path_generator.h"
 
-#include <ifc/path_generation/roughing_path.h>
+#include <ifc/path_generation/paths/roughing_path.h>
+#include <ifc/path_generation/paths/flat_around_hm_path.h>
+#include <ifc/path_generation/paths/flat_around_intersection_path.h>
+#include <ifc/path_generation/paths/parametrization_path.h>
 
 #include <ifc/path_generation/height_map_paths.h>
 #include <ifc/material/material_box.h>
@@ -17,9 +20,21 @@ namespace ifc{
 
 PathGenerator::PathGenerator(
         std::shared_ptr<CADModelLoaderResult> model_loader_result,
-        std::shared_ptr<MaterialBox> material_box) :
+        std::shared_ptr<MaterialBox> material_box,
+        std::shared_ptr<ifx::Scene> scene) :
         model_loader_result_(model_loader_result),
-        material_box_(material_box){}
+        material_box_(material_box){
+    roughing_path_.reset(new RoughingPath(model_loader_result_,
+                                          material_box_));
+    flat_around_hm_path_.reset(new FlatAroundHMPath(model_loader_result_,
+                                                    material_box_));
+    flat_around_intersection_path_.reset(
+            new FlatAroundIntersectionPath(model_loader_result_,
+                                           material_box_, scene));
+    parametrization_path_.reset(
+            new ParametrizationPath(model_loader_result_,
+                                           material_box_, scene));
+}
 
 PathGenerator::~PathGenerator(){}
 
@@ -27,20 +42,34 @@ Paths PathGenerator::GenerateAll(){
     auto height_map_path = GenerateRequirements();
 
     Paths paths;
-    roughing_path_.reset(new RoughingPath(model_loader_result_,
-                                          material_box_));
 
     paths.rough_cutter = roughing_path_->Generate(height_map_path);
+    paths.flat_heighmap_cutter
+            = flat_around_hm_path_->Generate(height_map_path);
+    paths.flat_intersection_cutter = flat_around_intersection_path_->Generate();
+    paths.parametrization_cutter = parametrization_path_->Generate();
 
     return paths;
 }
 
 std::shared_ptr<Cutter> PathGenerator::GenerateRoughingPath(){
     auto height_map_path = GenerateRequirements();
-    roughing_path_.reset(new RoughingPath(model_loader_result_,
-                                          material_box_));
 
     return roughing_path_->Generate(height_map_path);
+}
+
+std::shared_ptr<Cutter> PathGenerator::GenerateFlatHeightmapPath(){
+    auto height_map_path = GenerateRequirements();
+
+    return flat_around_hm_path_->Generate(height_map_path);
+}
+
+std::shared_ptr<Cutter> PathGenerator::GenerateFlatIntersectionPath(){
+    return flat_around_intersection_path_->Generate();
+}
+
+std::shared_ptr<Cutter> PathGenerator::GenerateParametrizationPath(){
+    return parametrization_path_->Generate();
 }
 
 std::shared_ptr<HeightMapPath> PathGenerator::GenerateRequirements(){
@@ -66,7 +95,8 @@ std::vector<glm::vec3> PathGenerator::GenerateSamplePoints(
         std::vector<glm::vec3> surface_points
                 = GenerateSamplePoints(
                         model_loader_result->cad_model->surfaces[i],
-                        model_loader_result->render_object->GetModelMatrix());
+                        model_loader_result->cad_model->render_object
+                                ->GetModelMatrix());
         points.insert(points.end(),
                       surface_points.begin(),
                       surface_points.end());
@@ -97,13 +127,6 @@ std::vector<glm::vec3> PathGenerator::GenerateSamplePoints(
     for(float u = 0.0f; u < 1.0f; u+=du){
         for(float v = 0.0f; v < 1.0f; v+=dv){
             glm::vec3 surface_point = surface->compute(u,v);
-            glm::vec4 world_point = glm::vec4(surface_point.x,
-                                              surface_point.y,
-                                              surface_point.z, 1.0f);
-            world_point = model_matrix * world_point;
-            surface_point = glm::vec3(world_point.x,
-                                      world_point.y,
-                                      world_point.z);
             if(i >= points.size())
                 points.push_back(surface_point);
             else

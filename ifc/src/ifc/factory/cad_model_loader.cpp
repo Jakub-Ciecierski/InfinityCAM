@@ -25,7 +25,10 @@ std::shared_ptr<CADModelLoaderResult> CADModelLoader::Load(std::string path){
     auto result = std::make_shared<CADModelLoaderResult>();
     result->cad_model = std::shared_ptr<CADModel>(new CADModel());
     result->cad_model->surfaces = deserialization.surfaces();
-    result->render_object = CreateRenderObject(deserialization.surfaces());
+    result->cad_model->render_object
+            = CreateRenderObject(deserialization.surfaces());
+
+    result->interection_model = CreateIntersectionRectangle();
 
     return result;
 }
@@ -34,23 +37,24 @@ std::shared_ptr<ifx::RenderObject> CADModelLoader::CreateRenderObject(
         std::vector<std::shared_ptr<SurfaceC2Cylind>> surfaces){
     std::vector<std::shared_ptr<ifx::Model>> models;
     for(unsigned int i = 0;i < surfaces.size();i++){
-        models.push_back(CreateModel(surfaces[i], i));
+        models.push_back(CreateModel(surfaces[i]->GetBicubicBezierPatches(),
+                                     i));
     }
 
     auto object = std::shared_ptr<ifx::RenderObject>(new ifx::RenderObject(
             ObjectID(1, "CAD Model"), models
     ));
+    object->do_render(false);
     object->addProgram(LoadProgram());
 
-    AdjustTransform(object);
+    AdjustTransform(object,
+                    surfaces);
 
     return object;
 }
 
 std::shared_ptr<ifx::Model> CADModelLoader::CreateModel(
-std::shared_ptr<SurfaceC2Cylind> surface, int id){
-    Matrix<BicubicBezierPatch*>& patches =
-            surface->GetBicubicBezierPatches();
+        Matrix<BicubicBezierPatch*>& patches, int id){
     int n = patches.rowCount();
     int m = patches.columnCount();
     std::vector<std::unique_ptr<ifx::Mesh>> meshes;
@@ -139,10 +143,81 @@ std::shared_ptr<Program> CADModelLoader::LoadProgram(){
 }
 
 void CADModelLoader::AdjustTransform(
-        std::shared_ptr<ifx::RenderObject> object){
+        std::shared_ptr<ifx::RenderObject> object,
+        std::vector<std::shared_ptr<SurfaceC2Cylind>>& surfaces){
+    float move_x = 0.32;
+    float move_y = 0.182;
+    float move_z = 0.102;
+    float scale = 0.35;
+    float rotate_x = 0;
+    float rotate_y = 0;
+    float rotate_z = 90;
+
     object->moveTo(glm::vec3(0.32, 0.182, 0.102));
     object->scale(glm::vec3(0.35, 0.35, 0.35));
     object->rotateTo(glm::vec3(0, 0, 90));
+    const glm::mat4& model_matrix = object->GetModelMatrix();
+
+    for(auto& surface : surfaces){
+        const Matrix<ifc::Point*>& points = surface->getMatrixPoints();
+        int n = points.rowCount();
+        int m = points.columnCount();
+        for(int i = 0; i < n; i++){
+            for(int j = 0; j < m ; j++){
+                const glm::vec3& pos = points[i][j]->getPosition();
+                glm::vec4 pos4 = glm::vec4(pos.x, pos.y, pos.z, 1.0f);
+                pos4 = model_matrix * pos4;
+                points[i][j]->moveTo(pos4.x, pos4.y, pos4.z);
+            }
+        }
+    }
 }
+
+std::shared_ptr<CADIntersectionRectangle>
+        CADModelLoader::CreateIntersectionRectangle(){
+    auto cad_intersection_rectangle =
+            std::make_shared<CADIntersectionRectangle>();
+
+    cad_intersection_rectangle->surface
+            = std::shared_ptr<SurfaceC2Rect>(new SurfaceC2Rect(SceneID(), "",
+                                                               1, 1,
+                                                               1.5f, 1.5f));
+    auto model = CreateModel(
+            cad_intersection_rectangle->surface->GetBicubicBezierPatches(),
+            10);
+    auto object = std::shared_ptr<ifx::RenderObject>(new ifx::RenderObject(
+            ObjectID(10, "Inters Surface"), model));
+    object->do_render(false);
+    object->addProgram(LoadProgram());
+    AdjustTransformIntersectionRenagle(object,
+                                       cad_intersection_rectangle->surface);
+
+    cad_intersection_rectangle->render_object = object;
+
+    return cad_intersection_rectangle;
+}
+
+void CADModelLoader::AdjustTransformIntersectionRenagle(
+        std::shared_ptr<ifx::RenderObject> object,
+        std::shared_ptr<SurfaceC2Rect>& surface){
+    object->moveTo(glm::vec3(-2.300, 0.180, -2.200));
+    object->scale(glm::vec3(4.0, 4.0, 1.0));
+    object->rotateTo(glm::vec3(90, 0, 0));
+
+    const glm::mat4& model_matrix = object->GetModelMatrix();
+
+    const Matrix<ifc::Point*>& points = surface->getMatrixPoints();
+    int n = points.rowCount();
+    int m = points.columnCount();
+    for(int i = 0; i < n; i++){
+        for(int j = 0; j < m ; j++){
+            const glm::vec3& pos = points[i][j]->getPosition();
+            glm::vec4 pos4 = glm::vec4(pos.x, pos.y, pos.z, 1.0f);
+            pos4 = model_matrix * pos4;
+            points[i][j]->moveTo(pos4.x, pos4.y, pos4.z);
+        }
+    }
+}
+
 
 }

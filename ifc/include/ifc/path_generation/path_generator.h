@@ -9,27 +9,44 @@
 
 class SurfaceC2Cylind;
 
+namespace ifx{
+class Scene;
+}
+
 namespace ifc {
 
 struct HeightMapPath;
 class Cutter;
 class MaterialBox;
 class RoughingPath;
+class FlatAroundHMPath;
+class FlatAroundIntersectionPath;
+class ParametrizationPath;
 struct CADModelLoaderResult;
 
+/**
+ * Consecutive paths.
+ */
 struct Paths{
     std::shared_ptr<Cutter> rough_cutter;
+    std::shared_ptr<Cutter> flat_heighmap_cutter;
+    std::shared_ptr<Cutter> flat_intersection_cutter;
+    std::shared_ptr<Cutter> parametrization_cutter;
 };
 
 class PathGenerator {
 public:
 
     PathGenerator(std::shared_ptr<CADModelLoaderResult> result,
-                  std::shared_ptr<MaterialBox> material_box);
+                  std::shared_ptr<MaterialBox> material_box,
+                  std::shared_ptr<ifx::Scene> scene);
     ~PathGenerator();
 
     Paths GenerateAll();
     std::shared_ptr<Cutter> GenerateRoughingPath();
+    std::shared_ptr<Cutter> GenerateFlatHeightmapPath();
+    std::shared_ptr<Cutter> GenerateFlatIntersectionPath();
+    std::shared_ptr<Cutter> GenerateParametrizationPath();
 
 private:
     std::shared_ptr<HeightMapPath> GenerateRequirements();
@@ -60,6 +77,13 @@ private:
 
     // Step 1
     std::shared_ptr<RoughingPath> roughing_path_;
+    // Step 2
+    std::shared_ptr<FlatAroundHMPath> flat_around_hm_path_;
+    // Step 3
+    std::shared_ptr<FlatAroundIntersectionPath> flat_around_intersection_path_;
+    // Step 4
+    std::shared_ptr<ParametrizationPath> parametrization_path_;
+
 };
 }
 

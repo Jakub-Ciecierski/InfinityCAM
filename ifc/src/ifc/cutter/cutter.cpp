@@ -145,6 +145,8 @@ void Cutter::CutSphere(HeightMap* height_map) {
     int n = height_map->texture_data()->width;
     int m = height_map->texture_data()->height;
     glm::vec3 cutter_center = glm::vec3(0, 0, radius_) + current_position_;
+    glm::vec2 test_cutter_center = glm::vec2(
+            current_position_.x, current_position_.y);
 
     const float epsilon = 0.5f * radius_;
     int look_ahead_radius_row
@@ -170,7 +172,11 @@ void Cutter::CutSphere(HeightMap* height_map) {
             glm::vec3 box_top_mm = glm::vec3(box_pos2_mm.x,
                                              box_pos2_mm.y,
                                              height_map->GetHeight(i, j));
-            float distance = ifx::EuclideanDistance(cutter_center, box_top_mm);
+            /*
+            float distance = ifx::EuclideanDistance(cutter_center,
+                                                    box_top_mm);*/
+            float distance = ifx::EuclideanDistance(test_cutter_center,
+                                                    box_pos2_mm);
             float delta = radius_ - distance;
             if (delta > 0) {
                 ifx::LineIntersection line;
@@ -228,6 +234,67 @@ void Cutter::CutSphere(HeightMap* height_map){
 }
  */
 
+
+void Cutter::CutFlat(HeightMap* height_map){
+    int n = height_map->texture_data()->width;
+    int m = height_map->texture_data()->height;
+    glm::vec3 cutter_center = glm::vec3(0, 0, radius_) + current_position_;
+    glm::vec2 test_cutter_center = glm::vec2(
+            current_position_.x, current_position_.y);
+
+    const float epsilon = 0.5f * radius_;
+    int look_ahead_radius_row
+            = (radius_ + epsilon) * height_map->row_width();
+    int look_ahead_radius_column
+            = (radius_+ epsilon) * height_map->column_width();
+
+    glm::vec2 corresponding_index = height_map->GetIndices(
+            MillimetersToGL(glm::vec2(cutter_center.x, cutter_center.y)));
+    int start_i = corresponding_index.x;
+    int start_j = corresponding_index.y;
+    for(int ii = -look_ahead_radius_row; ii < look_ahead_radius_row; ii++){
+        if(ii + start_i < 0 || ii + start_i >= n)
+            continue;
+        for(int jj = -look_ahead_radius_column;
+            jj < look_ahead_radius_column; jj++){
+            if(jj + start_j < 0 || jj + start_j >= m)
+                continue;
+            int i = ii + start_i;
+            int j = jj + start_j;
+            glm::vec2 box_pos2_mm
+                    = GLToMillimeters(height_map->GetPosition(i, j));
+            glm::vec3 box_top_mm = glm::vec3(box_pos2_mm.x,
+                                             box_pos2_mm.y,
+                                             height_map->GetHeight(i, j));
+            /*
+            float distance = ifx::EuclideanDistance(cutter_center,
+                                                    box_top_mm);*/
+            float distance = ifx::EuclideanDistance(test_cutter_center,
+                                                    box_pos2_mm);
+            float delta = radius_ - distance;
+            if (delta > 0) {
+                ifx::LineIntersection line;
+                ifx::SphereIntersection sphere;
+                line.origin = glm::vec3(box_top_mm.x, box_top_mm.y, 0);
+                line.direction = glm::vec3(0.0f, 0.0f, 1.0f);
+                sphere.radius = radius_;
+                sphere.center = cutter_center;
+
+                ifx::LineSphereIntersection intersection
+                        = ifx::Intersection(line, sphere);
+                float d = intersection.d1 <= intersection.d2
+                          ? intersection.d1 : intersection.d2;
+                if (d == intersection.NO_SOLUTION)
+                    continue;
+
+                height_map->SetHeight(i, j, current_position_.z);
+
+            }
+        }
+    }
+}
+
+/*
 void Cutter::CutFlat(HeightMap* height_map){
     int n = height_map->texture_data()->width;
     int m = height_map->texture_data()->height;
@@ -265,7 +332,7 @@ void Cutter::CutFlat(HeightMap* height_map){
 
                 if(height_map->SetHeight(i,j, current_position_.z)){
                     if(current_vector_equation_.IsGoingDown()){
-                        last_status_= CutterStatus::FLAT_DIRECT_DOWN;
+                        last_status_ = CutterStatus::FLAT_DIRECT_DOWN;
                         return;
                     }
                 }
@@ -273,7 +340,7 @@ void Cutter::CutFlat(HeightMap* height_map){
         }
     }
 }
-
+*/
 /*
 void Cutter::CutFlat(HeightMap* height_map){
     std::vector<glm::vec2>& positions = height_map->positions();

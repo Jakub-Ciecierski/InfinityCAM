@@ -96,7 +96,7 @@ void SimulationGUI::RenderSimulationControl(){
     ImGui::SameLine();
     ImGui::SliderFloat("Time delta [s]",
                        simulation_->time_delta_ptr(),
-                       0.0001f, 1.0f, "%.4f");
+                       0.0001f, 0.1f, "%.4f");
     ImGui::SliderFloat("Line delta",
                        simulation_->line_delta_ptr(),
                        0.0001f, 1.0f, "%.4f");
@@ -129,7 +129,7 @@ void SimulationGUI::RenderCutterSection(){
 void SimulationGUI::RenderLoadCutter(){
     int size = 1024;
     //"jakub/programming/InfinityCAM/ifc/res/paths/t1.k16";
-    static char filepath[1024] = "jc_t1.k16";
+    static char filepath[1024] = "jc_t4.k8";
 
     if(ImGui::TreeNode("Cutter")){
         if (ImGui::Button("Load Cutter")) {

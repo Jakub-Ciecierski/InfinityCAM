@@ -21,8 +21,8 @@ struct HeightMapPath {
             row_count(row_count), column_count(column_count),
             width_mm(width_mm), height_mm(height_mm),
             init_height(init_height) {
-        row_width = row_count / width_mm;
-        column_width = column_count / height_mm;
+        row_width = width_mm / row_count;
+        column_width = height_mm / column_count;
 
         std::cout << "HeightMapPath: " << std::endl;
         std::cout << "row_width: " << row_width << std::endl;

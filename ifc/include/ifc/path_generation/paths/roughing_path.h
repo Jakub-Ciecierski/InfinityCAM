@@ -34,18 +34,6 @@ private:
     std::shared_ptr<Cutter> CreatePath(
             std::shared_ptr<HeightMapPath> height_map_path,
             std::shared_ptr<MaterialBox> material_box);
-    std::vector<Instruction> CreatePathFirstHalf(
-            std::shared_ptr<HeightMapPath> height_map_path,
-            float save_height, float start_height, float radius,
-            int n, int m,
-            int skip_rows, int skip_columns,
-            int look_ahead_radius_row, int look_ahead_radius_column);
-    std::vector<Instruction> CreatePathSecondHalf(
-            std::shared_ptr<HeightMapPath> height_map_path,
-            float save_height, float start_height, float radius,
-            int n, int m,
-            int skip_rows, int skip_columns,
-            int look_ahead_radius_row, int look_ahead_radius_column);
 
     std::vector<Instruction> CreatePathFromAbove(
             std::shared_ptr<HeightMapPath> height_map_path,
@@ -53,11 +41,6 @@ private:
             int n, int m,
             int skip_rows, int skip_columns,
             int look_ahead_radius_row, int look_ahead_radius_column);
-
-    bool ShouldGoBack(int i, int j, int n, int m,
-                      int look_ahead_radius_row,
-                      int look_ahead_radius_column,
-                      std::shared_ptr<HeightMapPath> height_map_path);
 
     float MaxHeightInVicinity(int i, int j, int n, int m,
                               int look_ahead_radius_row,
