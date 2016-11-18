@@ -61,7 +61,7 @@ std::shared_ptr<ifx::RenderObject> CutterFactory::CreateFlatCutterRenderObject(
     std::cout << "Creating Flat Cutter Render Object" << std::endl;
 
     auto handle_mesh = ifx::MeshFactory::LoadCubeUnTextured();
-    auto blade_mesh = ifx::MeshFactory::LoadCubeUnTextured();
+    auto blade_mesh = ifx::MeshFactory::LoadHalfSphere(0.5f);
 
     std::vector<std::shared_ptr<ifx::Texture2D>> blade_textures
             =  CreateCutterBladeTextures();
