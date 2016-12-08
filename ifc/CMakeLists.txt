@@ -7,13 +7,11 @@ set(INC_DIR include)
 set(SRC_DIR src)
 set(DEPS_DIR dependencies)
 
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ./bin)
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${IFX_APP_BUILD_DIR})
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -std=c++11 -Wall")
 
-add_definitions(
-        -DGLEW_STATIC
-)
+add_definitions(-DGLEW_STATIC)
 
 #---------------------------------
 # MACROS
@@ -33,7 +31,7 @@ ENDMACRO()
 
 # INCLUDE AUTOMATIC SEARCH
 FIND_INCLUDE_DIR(INC_DIRS ./include/*.h)
-include_directories(${INC_DIRS} ${INC_DIR})
+include_directories(${INC_DIR} ${INC_DIR})
 
 # SOURCES AUTOMATIC SEARCH
 file(GLOB_RECURSE SRC_FILES src/*.cpp)
@@ -41,70 +39,41 @@ set(SOURCE_FILES )
 
 add_executable(${APP_NAME} ${SOURCE_FILES} ${SRC_FILES})
 
-#---------------------------------
-# IFX LIBS
-#---------------------------------
-
-add_subdirectory($ENV{IFX_ROOT}/modules/libs/controls/controls ./build/controls/controls)
-include_directories($ENV{IFX_ROOT}/modules/libs/controls/controls/${INC_DIR})
-
-add_subdirectory($ENV{IFX_ROOT}/modules/libs/graphics/model ./build/graphics/model)
-include_directories($ENV{IFX_ROOT}/modules/libs/graphics/model/${INC_DIR})
-
-add_subdirectory($ENV{IFX_ROOT}/modules/libs/graphics/model_loader ./build/graphics/model_loader)
-include_directories($ENV{IFX_ROOT}/modules/libs/graphics/model_loader/${INC_DIR})
-
-add_subdirectory($ENV{IFX_ROOT}/modules/libs/graphics/rendering ./build/graphics/rendering)
-include_directories($ENV{IFX_ROOT}/modules/libs/graphics/rendering/${INC_DIR})
-
-add_subdirectory($ENV{IFX_ROOT}/modules/libs/graphics/shaders ./build/graphics/shaders)
-include_directories($ENV{IFX_ROOT}/modules/libs/graphics/shaders/${INC_DIR})
-
-add_subdirectory($ENV{IFX_ROOT}/modules/libs/graphics/lighting ./build/graphics/lighting)
-include_directories($ENV{IFX_ROOT}/modules/libs/graphics/lighting/${INC_DIR})
-
-add_subdirectory($ENV{IFX_ROOT}/modules/libs/object/object ./build/object/object)
-include_directories($ENV{IFX_ROOT}/modules/libs/object/object/${INC_DIR})
-
-add_subdirectory($ENV{IFX_ROOT}/modules/libs/common/resources ./build/common/resources)
-include_directories($ENV{IFX_ROOT}/modules/libs/common/resources/${INC_DIR})
-
-add_subdirectory($ENV{IFX_ROOT}/modules/libs/common/math ./build/common/math)
-include_directories($ENV{IFX_ROOT}/modules/libs/common/math/${INC_DIR})
-
-add_subdirectory($ENV{IFX_ROOT}/modules/libs/graphics/factory ./build/graphics/factory)
-include_directories($ENV{IFX_ROOT}/modules/libs/graphics/factory/${INC_DIR})
-
-add_subdirectory($ENV{IFX_ROOT}/modules/libs/vr/ ./build/vr)
-include_directories($ENV{IFX_ROOT}/modules/libs/vr/${INC_DIR})
-
-add_subdirectory($ENV{IFX_ROOT}/modules/libs/logic/game_loop ./build/logic/game_loop)
-include_directories($ENV{IFX_ROOT}/modules/libs/logic/game_loop/${INC_DIR})
-
-add_subdirectory($ENV{IFX_ROOT}/modules/libs/gui/gui ./build/gui/gui)
-include_directories($ENV{IFX_ROOT}/modules/libs/gui/gui/${INC_DIR})
-
 #----------------------------------
 # EXTERNAL
 #----------------------------------
 
-add_subdirectory($ENV{IFX_ROOT}/${DEPS_DIR}/glfw-3.1.2 ./build/glfw-3.1.2)
-include_directories($ENV{IFX_ROOT}/${DEPS_DIR}/glfw-3.1.2/${INC_DIR})
+add_subdirectory(${IFX_ROOT}/${DEPS_DIR} ${IFX_LIB_DEPS_BUILD_DIR})
 
-add_subdirectory($ENV{IFX_ROOT}/${DEPS_DIR}/assimp-3.1.1 ./build/assimp-3.1.1)
-include_directories($ENV{IFX_ROOT}/${DEPS_DIR}/assimp-3.1.1/${INC_DIR})
-
-add_subdirectory($ENV{IFX_ROOT}/${DEPS_DIR}/SOIL ./build/SOIL)
-include_directories($ENV{IFX_ROOT}/${DEPS_DIR}/SOIL/src)
-
-#
-include_directories($ENV{IFX_ROOT}/${DEPS_DIR}/glm/${INC_DIR})
+include_directories(${IFX_ROOT}/${DEPS_DIR}/glfw-3.1.2/${INC_DIR})
+include_directories(${IFX_ROOT}/${DEPS_DIR}/assimp-3.1.1/${INC_DIR})
+include_directories(${IFX_ROOT}/${DEPS_DIR}/SOIL/src)
+include_directories(${IFX_ROOT}/${DEPS_DIR}/glm/${INC_DIR})
+include_directories(${IFX_ROOT}/${DEPS_DIR}/glew-2.0.0/include)
 
 find_package(OpenGL REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIRS})
 
-add_subdirectory($ENV{IFX_ROOT}/${DEPS_DIR}/glew-2.0.0 ./build/glew-2.0.0)
-include_directories($ENV{IFX_ROOT}/${DEPS_DIR}/glew-2.0.0/include)
+#---------------------------------
+# IFX LIBS
+#---------------------------------
+
+add_subdirectory(${IFX_ROOT} ${IFX_LIB_BUILD_DIR})
+
+include_directories(${IFX_ROOT}/modules/controls/controls/${INC_DIR})
+include_directories(${IFX_ROOT}/modules/graphics/model/${INC_DIR})
+include_directories(${IFX_ROOT}/modules/graphics/model_loader/${INC_DIR})
+include_directories(${IFX_ROOT}/modules/graphics/rendering/${INC_DIR})
+include_directories(${IFX_ROOT}/modules/graphics/shaders/${INC_DIR})
+include_directories(${IFX_ROOT}/modules/graphics/lighting/${INC_DIR})
+include_directories(${IFX_ROOT}/modules/object/object/${INC_DIR})
+include_directories(${IFX_ROOT}/modules/common/resources/${INC_DIR})
+include_directories(${IFX_ROOT}/modules/common/math/${INC_DIR})
+include_directories(${IFX_ROOT}/modules/graphics/factory/${INC_DIR})
+include_directories(${IFX_ROOT}/modules/vr/${INC_DIR})
+include_directories(${IFX_ROOT}/modules/logic/game_loop/${INC_DIR})
+include_directories(${IFX_ROOT}/modules/gui/gui/${INC_DIR})
+include_directories(${IFX_ROOT}/modules/gui/engine_gui/${INC_DIR})
 
 #----------------------------------
 # InfinityCAD
@@ -136,24 +105,23 @@ target_link_libraries(${APP_NAME}
         rendering_ifx shaders_ifx math_ifx
         lighting_ifx object_ifx resources_ifx controls_ifx
         vr_ifx game_loop_ifx
-        gui_ifx)
+        gui_ifx engine_gui_ifx)
 
 target_link_libraries(${APP_NAME}
-        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/ifc/libifc.so
-        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/ifcgpu/libifcgpu.so
-        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/glm/libglm.so
-        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/rc/librc.so
-        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/math/libmath.so
-        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/strings/libstrings.so
-        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/parallel/libparallel.so
-        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/pso/libpso.so
-        $ENV{IFX_ROOT}/../InfinityCAD/dependencies/lib/time/libtime.so
+        ${IFX_ROOT}/../InfinityCAD/dependencies/lib/ifc/libifc.so
+        ${IFX_ROOT}/../InfinityCAD/dependencies/lib/ifcgpu/libifcgpu.so
+        ${IFX_ROOT}/../InfinityCAD/dependencies/lib/glm/libglm.so
+        ${IFX_ROOT}/../InfinityCAD/dependencies/lib/rc/librc.so
+        ${IFX_ROOT}/../InfinityCAD/dependencies/lib/math/libmath.so
+        ${IFX_ROOT}/../InfinityCAD/dependencies/lib/strings/libstrings.so
+        ${IFX_ROOT}/../InfinityCAD/dependencies/lib/parallel/libparallel.so
+        ${IFX_ROOT}/../InfinityCAD/dependencies/lib/pso/libpso.so
+        ${IFX_ROOT}/../InfinityCAD/dependencies/lib/time/libtime.so
         $ENV{CUDA_HOME}/lib64/libcudart.so
         )
 
 target_link_libraries(${APP_NAME} SOIL)
 target_link_libraries(${APP_NAME} assimp)
 target_link_libraries(${APP_NAME} glfw ${GLFW_LIBRARIES})
-
 target_link_libraries(${APP_NAME} ${OPENGL_LIBRARIES})
 target_link_libraries(${APP_NAME} glew20)

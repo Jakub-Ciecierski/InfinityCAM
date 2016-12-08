@@ -11,8 +11,9 @@
 
 namespace ifx{
 class Scene;
-class SceneWindowGUI;
+class EngineGUI;
 class RenderObject;
+class Renderer;
 }
 
 namespace ifc {
@@ -20,6 +21,7 @@ namespace ifc {
 class CAMGUI : public ifx::GUI{
 public:
     CAMGUI(GLFWwindow* window,
+           std::shared_ptr<ifx::Renderer> renderer,
            std::shared_ptr<ifx::Scene> scene,
            std::shared_ptr<ifx::RenderObject> plane,
            std::shared_ptr<CutterSimulation> simulation);
@@ -30,7 +32,7 @@ public:
 private:
     std::unique_ptr<SimulationGUI> simulation_gui_;
     std::unique_ptr<PathGenerationGUI> path_generation_gui_;
-    std::unique_ptr<ifx::SceneWindowGUI> scene_window_gui_;
+    std::shared_ptr<ifx::EngineGUI> engine_gui_;
 };
 
 }

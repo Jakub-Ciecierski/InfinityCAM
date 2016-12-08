@@ -140,13 +140,13 @@ MaterialBoxFactory::CreateMaterialBoxRenderObject(
     material->AddTexture(
             ifx::Texture2D::MakeTexture2DFromFile(
                     ifx::Resources::GetInstance().GetResourcePath(
-                            "cam/box1_diff.png",
+                            "cam/box4_diff.jpg",
                             ifx::ResourceType::TEXTURE),
                     ifx::TextureTypes::DIFFUSE));
     material->AddTexture(
             ifx::Texture2D::MakeTexture2DFromFile(
                     ifx::Resources::GetInstance().GetResourcePath(
-                            "cam/box1_spec.png",
+                            "cam/box4_spec.jpg",
                             ifx::ResourceType::TEXTURE),
                     ifx::TextureTypes::SPECULAR));
     renderObject->models()[0]->getMesh(0)->material(material);

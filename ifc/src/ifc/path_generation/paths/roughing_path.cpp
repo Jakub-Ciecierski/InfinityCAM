@@ -8,7 +8,7 @@
 #include <ifc/cutter/instruction.h>
 #include <object/render_object.h>
 #include <infinity_cad/rendering/render_objects/surfaces/surface_c2_cylind.h>
-#include <cutter.h>
+#include <ifc/cutter/cutter.h>
 
 namespace ifc {
 

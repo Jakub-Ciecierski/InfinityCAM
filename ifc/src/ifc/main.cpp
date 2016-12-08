@@ -1,7 +1,7 @@
 #include <factory/render_object_factory.h>
 #include <game_loop/game_loop.h>
 #include <rendering/renderer.h>
-#include <gui/cam_gui.h>
+#include <ifc/gui/cam_gui.h>
 #include <ifc/cutter/cutter_simulation.h>
 #include <ifc/factory/material_box_factory.h>
 
@@ -22,6 +22,7 @@ void InitGUI(ifx::GameLoop* game_loop){
 
     auto gui = std::unique_ptr<ifc::CAMGUI>(new ifc::CAMGUI(
             game_loop->renderer()->window()->getHandle(),
+            game_loop->renderer(),
             game_loop->renderer()->scene(),
             plane,
             simulation
