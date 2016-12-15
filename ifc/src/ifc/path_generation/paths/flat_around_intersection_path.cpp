@@ -20,15 +20,21 @@ FlatAroundIntersectionPath::FlatAroundIntersectionPath(
         std::shared_ptr<ifx::Scene> scene) :
         model_loader_result_(model_loader_result),
         material_box_(material_box),
-        scene_(scene){}
+        scene_(scene),
+        generated_(false){}
 
 FlatAroundIntersectionPath::~FlatAroundIntersectionPath(){}
 
 std::shared_ptr<Cutter> FlatAroundIntersectionPath::Generate(){
+    generated_ = true;
     std::cout << "3) Generating FlatAroundIntersectionPath" << std::endl;
 
     ComputeIntersections();
     CutterTrajectory trajectory = CreateTrajectory(intersections_data_);
+
+    // Used in final stage
+    inside_hand_positions_ = CreateInsideHandTrajectory(intersections_data_);
+
     return CreatePath(trajectory);
 }
 
@@ -88,7 +94,10 @@ std::shared_ptr<BoxIntersectionData>
     data->surface = surface;
     data->render_object = render_object;
 
-    ComputeEqualDistancedIntersections(data, normal_direction);
+    data->equally_distanced
+            = ComputeEqualDistancedIntersections(data, normal_direction);
+    data->double_equally_distanced
+            = ComputeEqualDistancedIntersections(data, normal_direction, 2.0f);
 
     return data;
 }
@@ -110,7 +119,8 @@ std::shared_ptr<BoxIntersectionData>
     data->surface = surface;
     data->render_object = render_object;
 
-    ComputeEqualDistancedIntersections(data, normal_direction);
+    data->equally_distanced
+            = ComputeEqualDistancedIntersections(data, normal_direction);
 
     return data;
 }
@@ -133,7 +143,8 @@ FlatAroundIntersectionPath::ComputeDrillLeftIntersection(
     data->surface = surface;
     data->render_object = render_object;
 
-    ComputeEqualDistancedIntersections(data, normal_direction);
+    data->equally_distanced
+            = ComputeEqualDistancedIntersections(data, normal_direction);
 
     return data;
 }
@@ -156,7 +167,8 @@ FlatAroundIntersectionPath::ComputeDrillRightIntersection(
     data->surface = surface;
     data->render_object = render_object;
 
-    ComputeEqualDistancedIntersections(data, normal_direction);
+    data->equally_distanced
+            = ComputeEqualDistancedIntersections(data, normal_direction);
 
     return data;
 }
@@ -178,7 +190,8 @@ std::shared_ptr<BoxIntersectionData>
     data->surface = surface;
     data->render_object = render_object;
 
-    ComputeEqualDistancedIntersections(data, normal_direction);
+    data->equally_distanced
+            = ComputeEqualDistancedIntersections(data, normal_direction);
 
     return data;
 }
@@ -199,15 +212,21 @@ std::shared_ptr<BoxIntersectionData>
     data->surface = surface;
     data->render_object = render_object;
 
-    ComputeEqualDistancedIntersections(data, normal_direction);
+    data->equally_distanced
+            = ComputeEqualDistancedIntersections(data, normal_direction);
+
+    data->double_equally_distanced
+            = ComputeEqualDistancedIntersections(data, normal_direction, 2.0f);
 
     return data;
 }
 
 
-void FlatAroundIntersectionPath::ComputeEqualDistancedIntersections(
+std::shared_ptr<BoxIntersectionData>
+FlatAroundIntersectionPath::ComputeEqualDistancedIntersections(
         std::shared_ptr<BoxIntersectionData> intersection_data,
-        NormalDirection normal_direction){
+        NormalDirection normal_direction,
+        float distance_scalar){
     auto equally_distanced_data = std::make_shared<BoxIntersectionData>();
     int size = intersection_data->trace_points.size();
     equally_distanced_data->trace_points = intersection_data->trace_points;
@@ -226,7 +245,7 @@ void FlatAroundIntersectionPath::ComputeEqualDistancedIntersections(
             normal = glm::normalize(glm::cross(dv,du));
 
         equally_distanced_data->trace_points[i].point
-                += MillimetersToGL(radius_) * normal;
+                += distance_scalar * MillimetersToGL(radius_) * normal;
     }
     std::string name = intersection_data->render_object->id().name();
     name += "_ed";
@@ -234,7 +253,7 @@ void FlatAroundIntersectionPath::ComputeEqualDistancedIntersections(
             = CreateRenderObject(equally_distanced_data->trace_points, name);
     scene_->AddRenderObject(equally_distanced_data->render_object);
 
-    intersection_data->equally_distanced = equally_distanced_data;
+    return equally_distanced_data;
 }
 
 std::shared_ptr<ifx::RenderObject> FlatAroundIntersectionPath::CreateRenderObject(
@@ -448,6 +467,70 @@ FlatAroundIntersectionPath::CreateBaseBottomTopTrajectory(
     return positions;
 }
 
+std::vector<glm::vec3> FlatAroundIntersectionPath::CreateInsideHandTrajectory(
+        BoxIntersectionsData& intersections_data_){
+    auto curve1
+            = intersections_data_.hand_bottom_intersection->equally_distanced;
+    auto curve2
+            = intersections_data_.base_top_intersection->equally_distanced;
+
+    std::vector<glm::vec3> positions;
+    glm::vec2 indicies1
+            = GetClosestPointsIndices(curve1->trace_points,
+                                      curve2->trace_points,
+                                      0, curve2->trace_points.size() / 2);
+
+    glm::vec2 indicies2
+            = GetClosestPointsIndices(curve1->trace_points,
+                                      curve2->trace_points,
+                                      curve2->trace_points.size() / 2,
+                                      curve2->trace_points.size());
+
+    for(int i = indicies1.x;  i > indicies2.x; i--){
+        positions.push_back(curve1->trace_points[i].point);
+    }
+    for(int i = indicies2.y; i > indicies1.y ;i--){
+        positions.push_back(curve2->trace_points[i].point);
+    }
+
+
+
+
+
+    auto curve11
+            = intersections_data_.hand_bottom_intersection->double_equally_distanced;
+    auto curve22
+            = intersections_data_.base_top_intersection->double_equally_distanced;
+
+    glm::vec2 indicies11
+            = GetClosestPointsIndices(curve11->trace_points,
+                                      curve22->trace_points,
+                                      0, curve22->trace_points.size() / 2);
+
+    glm::vec2 indicies22
+            = GetClosestPointsIndices(curve11->trace_points,
+                                      curve22->trace_points,
+                                      curve22->trace_points.size() / 2,
+                                      curve22->trace_points.size());
+
+    for(int i = indicies11.x;  i > indicies22.x; i--){
+        positions.push_back(curve11->trace_points[i].point);
+    }
+    for(int i = indicies22.y; i > indicies11.y ;i--){
+        positions.push_back(curve22->trace_points[i].point);
+    }
+
+    for(unsigned int i = 0; i < positions.size(); i++){
+        // Avoid numerical errors, round up to e.g. 20mm
+        positions[i].y
+                = MillimetersToGL(
+                material_box_->dimensions().depth -
+                material_box_->dimensions().max_depth);
+    }
+
+    return positions;
+}
+
 glm::vec2 FlatAroundIntersectionPath::GetClosestPointsIndices(
         std::vector<TracePoint>& trace_points1,
         std::vector<TracePoint>& trace_points2,
@@ -476,7 +559,9 @@ std::shared_ptr<Cutter> FlatAroundIntersectionPath::CreatePath(
     const float safety_adder = 15.0f;
     std::vector<Instruction> instructions;
     const float save_height = material_box_->dimensions().depth + safety_adder;
-    const float start_height = material_box_->dimensions().max_depth;
+    const float start_height
+            = material_box_->dimensions().depth
+              -material_box_->dimensions().max_depth;
     int id = 0;
     glm::vec3 init_pos1 = glm::vec3(
             -material_box_->dimensions().x/2.0f - safety_adder,

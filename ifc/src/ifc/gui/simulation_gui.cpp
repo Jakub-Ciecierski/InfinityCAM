@@ -30,8 +30,8 @@ void SimulationGUI::SetDefaultParameters(){
     material_box_create_params_.dimensions.depth = 50;
     material_box_create_params_.dimensions.max_depth = 30;
 
-    material_box_create_params_.precision.x = 50;
-    material_box_create_params_.precision.z = 50;
+    material_box_create_params_.precision.x = 500;
+    material_box_create_params_.precision.z = 500;
 }
 
 void SimulationGUI::RenderMainWindow(){
@@ -124,6 +124,7 @@ void SimulationGUI::RenderSimulationError(){
 
 void SimulationGUI::RenderCutterSection(){
     RenderLoadCutter();
+    RenderShowTrajectoryCutter();
 }
 
 void SimulationGUI::RenderLoadCutter(){
@@ -150,6 +151,12 @@ void SimulationGUI::RenderLoadCutter(){
         ImGui::BulletText("Diamater: %.1f [mm]",
                           simulation_->cutter()->diameter());
     }
+}
+
+void SimulationGUI::RenderShowTrajectoryCutter(){
+    static bool v = simulation_->show_trajectory();
+    ImGui::Checkbox("Show Trajectory", &v);
+    simulation_->show_trajectory(v);
 }
 
 void SimulationGUI::RenderMaterialBoxSection(){

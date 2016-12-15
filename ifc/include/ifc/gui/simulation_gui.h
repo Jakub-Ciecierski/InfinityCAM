@@ -34,21 +34,16 @@ private:
     void RenderMenuBar();
 
     void RenderSimulationInfoSection();
-
     void RenderSimulationRequirements();
-
     void RenderSimulationControl();
-
     void RenderSimulationError();
 
     void RenderCutterSection();
-
     void RenderLoadCutter();
+    void RenderShowTrajectoryCutter();
 
     void RenderMaterialBoxSection();
-
     void RenderMaterialBoxDimensions();
-
     void RenderMaterialBoxPrecision();
 
     void ResetSimulation();

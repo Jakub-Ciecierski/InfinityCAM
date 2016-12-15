@@ -47,7 +47,9 @@ Paths PathGenerator::GenerateAll(){
     paths.flat_heighmap_cutter
             = flat_around_hm_path_->Generate(height_map_path);
     paths.flat_intersection_cutter = flat_around_intersection_path_->Generate();
-    paths.parametrization_cutter = parametrization_path_->Generate();
+    paths.parametrization_cutter
+            = parametrization_path_->Generate(
+            flat_around_intersection_path_->inside_hand_positions());
 
     return paths;
 }
@@ -69,7 +71,8 @@ std::shared_ptr<Cutter> PathGenerator::GenerateFlatIntersectionPath(){
 }
 
 std::shared_ptr<Cutter> PathGenerator::GenerateParametrizationPath(){
-    return parametrization_path_->Generate();
+    return parametrization_path_->Generate(
+            flat_around_intersection_path_->inside_hand_positions());
 }
 
 std::shared_ptr<HeightMapPath> PathGenerator::GenerateRequirements(){
@@ -114,9 +117,11 @@ std::vector<glm::vec3> PathGenerator::GenerateSamplePoints(
     int n = surface->GetBicubicBezierPatches().rowCount();
     int m = surface->GetBicubicBezierPatches().columnCount();
     int count = n*m;
-    float scale = 1.0f;
+    //float scale = 1.0f;
+    float scale = 5.0f;
     const float du = 0.06 * 1.0f/(float)m * scale;
     const float dv = 0.06 * 1.0f/(float)n * scale;
+
     int points_count = 1.0f / du * 1.0f / dv;
 
     std::cout << "[n,m]: " << n << ", " << m << std::endl;

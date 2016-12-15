@@ -41,7 +41,7 @@ public:
             std::shared_ptr<ifx::Scene> scene);
     ~ParametrizationPath();
 
-    std::shared_ptr<Cutter> Generate();
+    std::shared_ptr<Cutter> Generate(std::vector<glm::vec3>& positions);
 private:
     void ComputeIntersections();
     std::vector<TracePoint> ComputeIntersection(
@@ -53,7 +53,7 @@ private:
     std::shared_ptr<IntersectionData> ComputeBaseHandLeftIntersection();
     std::shared_ptr<IntersectionData> ComputeBaseDrillIntersection();
 
-    std::shared_ptr<Cutter> CreatePath();
+    std::shared_ptr<Cutter> CreatePath(std::vector<glm::vec3>& positions);
 
     std::vector<glm::vec3> CreateBaseTrajectory();
     std::vector<glm::vec3> CreateHandTrajectory();
@@ -62,7 +62,8 @@ private:
     std::vector<Instruction> CreateBaseIntructions();
     std::vector<Instruction> CreateHandIntructions();
     std::vector<Instruction> CreateDrillIntructions();
-
+    std::vector<Instruction> CreateInsideHandInstructions(
+            std::vector<glm::vec3>& positions);
 
     std::shared_ptr<ifx::RenderObject> CreateRenderObject(
             const std::vector<TracePoint>& trace_points,

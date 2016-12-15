@@ -42,6 +42,13 @@ private:
             int skip_rows, int skip_columns,
             int look_ahead_radius_row, int look_ahead_radius_column);
 
+    std::vector<Instruction> CreatePathZigZag(
+            std::shared_ptr<HeightMapPath> height_map_path,
+            float save_height, float start_height, float radius,
+            int n, int m,
+            int skip_rows, int skip_columns,
+            int look_ahead_radius_row, int look_ahead_radius_column);
+
     float MaxHeightInVicinity(int i, int j, int n, int m,
                               int look_ahead_radius_row,
                               int look_ahead_radius_column,

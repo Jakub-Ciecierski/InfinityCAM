@@ -4,10 +4,12 @@
 #include <infinity_cad/rendering/render_objects/surfaces/surface_c2_cylind.h>
 #include <infinity_cad/geometry/intersection/intersection.h>
 
+#include <ifc/path_generation/paths/flat_around_intersection_path.h>
 #include <ifc/material/material_box.h>
 #include <ifc/factory/cad_model_loader.h>
 #include <rendering/scene/scene.h>
 #include <factory/program_factory.h>
+#include <math/print_math.h>
 
 namespace ifc{
 
@@ -21,10 +23,11 @@ ParametrizationPath::ParametrizationPath(
 
 ParametrizationPath::~ParametrizationPath(){ }
 
-std::shared_ptr<Cutter> ParametrizationPath::Generate(){
+std::shared_ptr<Cutter> ParametrizationPath::Generate(
+        std::vector<glm::vec3>& positions){
     std::cout << "4) ParametrizationPath" << std::endl;
-    ComputeIntersections();
-    return CreatePath();
+    //ComputeIntersections();
+    return CreatePath(positions);
 }
 
 void ParametrizationPath::ComputeIntersections(){
@@ -117,22 +120,30 @@ std::shared_ptr<IntersectionData>
     return data;
 }
 
-std::shared_ptr<Cutter> ParametrizationPath::CreatePath(){
+std::shared_ptr<Cutter> ParametrizationPath::CreatePath(
+        std::vector<glm::vec3>& positions){
     // TODO common id
     auto base_instructions = CreateBaseIntructions();
     auto hand_instructions = CreateHandIntructions();
     auto drill_instructions = CreateDrillIntructions();
+    auto inside_hand_instructions = CreateInsideHandInstructions(positions);
+
     std::vector<Instruction> instructions;
 
     instructions.insert(instructions.end(),
                         base_instructions.begin(),
                         base_instructions.end());
+
     instructions.insert(instructions.end(),
                         hand_instructions.begin(),
                         hand_instructions.end());
     instructions.insert(instructions.end(),
                         drill_instructions.begin(),
                         drill_instructions.end());
+
+    instructions.insert(instructions.end(),
+                        inside_hand_instructions.begin(),
+                        inside_hand_instructions.end());
 
     return std::shared_ptr<Cutter>(new Cutter(CutterType::Sphere,
                                               diameter_,
@@ -238,6 +249,35 @@ std::vector<Instruction> ParametrizationPath::CreateDrillIntructions(){
     return instructions;
 }
 
+std::vector<Instruction> ParametrizationPath::CreateInsideHandInstructions(
+        std::vector<glm::vec3>& positions){
+    const float safety_adder = 15.0f;
+    std::vector<Instruction> instructions;
+    if(positions.size() == 0)
+        return instructions;
+
+    int id = 0;
+    const float save_height = material_box_->dimensions().depth + safety_adder;
+    glm::vec3 pos0 = GetInstructionPosition(positions[0]);
+    pos0.z = save_height;
+    glm::vec3 pos1 = GetInstructionPosition(positions[0]);
+
+    instructions.push_back(Instruction(id++, pos0));
+    instructions.push_back(Instruction(id++, pos1));
+
+    for(unsigned int i = 0; i < positions.size(); i++){
+        instructions.push_back(Instruction(id++,
+                                           GetInstructionPosition
+                                                   (positions[i])));
+    }
+    glm::vec3 pos_last = GetInstructionPosition(positions[positions.size()-1]);
+    pos_last.z = save_height;
+
+    instructions.push_back(Instruction(id++, pos_last));
+
+    return instructions;
+}
+
 std::vector<glm::vec3> ParametrizationPath::CreateBaseTrajectory(){
     std::cout << "Base Trajectory " << std::endl;
     std::vector<glm::vec3> positions;
@@ -246,7 +286,7 @@ std::vector<glm::vec3> ParametrizationPath::CreateBaseTrajectory(){
                     material_box_->dimensions().max_depth);
     auto base_surface = model_loader_result_->cad_model->surfaces[0];
     float du = 0.009;
-    float dv = 0.009;
+    float dv = 0.005;
     const float start = 0.0f;
     const float end = 1.0f;
 
@@ -258,7 +298,16 @@ std::vector<glm::vec3> ParametrizationPath::CreateBaseTrajectory(){
                 continue;
             glm::vec3 surf_du = base_surface->computeDu(u,v);
             glm::vec3 surf_dv = base_surface->computeDv(u,v);
-            glm::vec3 norm = glm::normalize(glm::cross(surf_dv, surf_du));
+            //glm::vec3 norm = glm::normalize(glm::cross(surf_dv, surf_du));
+            glm::vec3 norm = glm::cross(surf_dv, surf_du);
+
+            if(ifx::Magnitude(norm) < 0.2){
+                ifx::PrintVec3(norm);
+                norm = glm::vec3(0,1,0);
+            }
+
+            norm = glm::normalize(norm);
+
             pos += MillimetersToGL(radius_) * norm;
             pos -= glm::vec3(0, MillimetersToGL(radius_), 0);
             if(pos.y <= max_height)
@@ -326,9 +375,10 @@ std::vector<glm::vec3> ParametrizationPath::CreateDrillTrajectory(){
     const float start = 0.0f;
     const float end = 1.0f;
 
-    for(float v = 0; v < end; v+=dv){
+    for(float u = 0; u < 0.5f; u+=du)
+    {
         std::vector<glm::vec3> row_positions;
-        for(float u = 0; u < 0.5f; u+=du){
+        for(float v = 0; v < end; v+=dv){
             glm::vec3 pos = surface->compute(u,v);
             if(pos.y <= max_height)
                 continue;

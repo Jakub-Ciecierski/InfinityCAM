@@ -10,6 +10,11 @@
 
 namespace ifc {
 
+struct Trajectory {
+    std::shared_ptr<ifx::RenderObject> view;
+    std::vector<glm::vec3> positions;
+};
+
 class CutterSimulation : public ifx::Simulation {
 public:
 
@@ -30,6 +35,9 @@ public:
 
     float total_time_s(){return total_time_s_;}
 
+    bool show_trajectory();
+    void show_trajectory(bool v);
+
     void SetMaterialBox(std::shared_ptr<MaterialBox> material_box);
     void SetCutter(std::shared_ptr<Cutter> cutter);
 
@@ -38,7 +46,12 @@ public:
 
     void UpdateAllAtOnce();
 private:
+    void Reset();
+
     bool SatisfiesTimeDelta();
+
+    void UpdateTrajectory();
+    void UpdateTrajectoryView();
 
     std::shared_ptr<MaterialBox> material_box_;
     std::shared_ptr<Cutter> cutter_;
@@ -53,6 +66,8 @@ private:
     float line_delta_;
 
     CutterStatus status;
+
+    Trajectory trajectory_;
 };
 }
 

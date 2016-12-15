@@ -30,6 +30,7 @@ struct BoxIntersectionData{
     std::shared_ptr<ifx::RenderObject> render_object;
 
     std::shared_ptr<BoxIntersectionData> equally_distanced;
+    std::shared_ptr<BoxIntersectionData> double_equally_distanced;
 };
 
 struct CutterTrajectory{
@@ -60,8 +61,12 @@ public:
             std::shared_ptr<CADModelLoaderResult> model_loader_result,
             std::shared_ptr<MaterialBox> material_box,
             std::shared_ptr<ifx::Scene> scene);
-
     ~FlatAroundIntersectionPath();
+
+    BoxIntersectionsData* intersections_data() {return &intersections_data_;};
+    std::vector<glm::vec3>& inside_hand_positions() {
+        return inside_hand_positions_;};
+    bool generated() {return generated_;}
 
     std::shared_ptr<Cutter> Generate();
 private:
@@ -90,9 +95,11 @@ private:
     std::shared_ptr<BoxIntersectionData> ComputeHandBottomIntersection(
             NormalDirection normal_direction);
 
-    void ComputeEqualDistancedIntersections(
+    std::shared_ptr<BoxIntersectionData>
+            ComputeEqualDistancedIntersections(
             std::shared_ptr<BoxIntersectionData> intersection_data,
-            NormalDirection normal_direction);
+            NormalDirection normal_direction,
+            float distance_scalar = 1.0f);
 
     std::shared_ptr<ifx::RenderObject> CreateRenderObject(
             const std::vector<TracePoint>& trace_points,
@@ -113,6 +120,9 @@ private:
     std::vector<glm::vec3> CreateBaseBottomTopTrajectory(
             BoxIntersectionsData& intersections_data_);
 
+    std::vector<glm::vec3> CreateInsideHandTrajectory(
+            BoxIntersectionsData& intersections_data_);
+
     glm::vec2 GetClosestPointsIndices(
             std::vector<TracePoint>& trace_points1,
             std::vector<TracePoint>& trace_points2,
@@ -131,6 +141,10 @@ private:
 
     const float diameter_ = 10.0f;
     const float radius_ = diameter_ / 2.0f;
+
+    bool generated_;
+
+    std::vector<glm::vec3> inside_hand_positions_;
 };
 }
 

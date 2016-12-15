@@ -44,7 +44,7 @@ void PathGenerationGUI::RenderMainWindow(){
 void PathGenerationGUI::RenderLoadModel(){
     ImGui::PushItemWidth(150);
     int size = 1024;
-    static char filepath[1024] = "ciecierskij_model.mg";
+    static char filepath[1024] = "ciecierskij.mg";
 
     if (ImGui::Button("Load Model")) {
         CADModelLoader cad_model_loader;

@@ -52,7 +52,7 @@ std::shared_ptr<Cutter> RoughingPath::CreatePath(
     std::cout << "skip_columns: " << skip_columns << std::endl;
     float start_height = material_box->dimensions().depth;
 
-    auto instructions = CreatePathFromAbove(height_map_path,
+    auto instructions = CreatePathZigZag(height_map_path,
                                             save_height, start_height,
                                             radius, n, m,
                                             skip_rows, skip_columns,
@@ -64,8 +64,6 @@ std::shared_ptr<Cutter> RoughingPath::CreatePath(
                                                      instructions));
     return cutter;
 }
-
-
 
 std::vector<Instruction> RoughingPath::CreatePathFromAbove(
         std::shared_ptr<HeightMapPath> height_map_path,
@@ -98,6 +96,111 @@ std::vector<Instruction> RoughingPath::CreatePathFromAbove(
         instructions.push_back(
                 CreateInstruction(id++, height_map_path->Position(i,0),
                                   save_height));
+    }
+    return instructions;
+}
+
+
+std::vector<Instruction> RoughingPath::CreatePathZigZag(
+        std::shared_ptr<HeightMapPath> height_map_path,
+        float save_height, float start_height, float radius,
+        int n, int m,
+        int skip_rows, int skip_columns,
+        int look_ahead_radius_row, int look_ahead_radius_column){
+    std::vector<Instruction> instructions;
+
+    int id = 0;
+    float max_height = MaxHeightInVicinity(0,0,n,m,
+                                           look_ahead_radius_row,
+                                           look_ahead_radius_column,
+                                           height_map_path);
+    instructions.push_back(
+            CreateInstruction(id++,
+                              height_map_path->Position(0,0)
+                              + MillimetersToGL(glm::vec2(-10,0)),
+                              save_height));
+    instructions.push_back(
+            CreateInstruction(id++,
+                              height_map_path->Position(0,0)
+                              + MillimetersToGL(glm::vec2(-10,0)),
+                              max_height));
+    /*
+    int direction = 1;
+    for(int i = 0; i < n; i+=skip_rows){
+        for (int j = m-1; j > 1; j -= skip_columns) {
+            float max_height1 = MaxHeightInVicinity(i, j, n, m,
+                                                    look_ahead_radius_row,
+                                                    look_ahead_radius_column,
+                                                    height_map_path);
+            float max_height2 = MaxHeightInVicinity(i, j - skip_columns, n,
+                                                    m,
+                                                    look_ahead_radius_row,
+                                                    look_ahead_radius_column,
+                                                    height_map_path);
+            instructions.push_back(
+                    CreateInstruction(id++, height_map_path->Position(i, j),
+                                      GLToMillimeters(max_height1)));
+            instructions.push_back(
+                    CreateInstruction(id++,
+                                      height_map_path->Position(
+                                              i, j - 1),
+                                      GLToMillimeters(max_height2)));
+            direction = 1;
+        }
+    }
+    */
+
+
+
+
+
+
+
+
+    int direction = 1;
+    for(int i = 0; i < n; i+=skip_rows){
+        if(direction == 1){
+        for(int j = 0; j < m-1; j+=skip_columns){
+            float max_height1 = MaxHeightInVicinity(i,j,n,m,
+                                                   look_ahead_radius_row,
+                                                   look_ahead_radius_column,
+                                                   height_map_path);
+            float max_height2 = MaxHeightInVicinity(i,j+skip_columns,n,m,
+                                                    look_ahead_radius_row,
+                                                    look_ahead_radius_column,
+                                                    height_map_path);
+            instructions.push_back(
+                    CreateInstruction(id++, height_map_path->Position(i,j),
+                                      GLToMillimeters(max_height1)));
+            instructions.push_back(
+                    CreateInstruction(id++,
+                                      height_map_path->Position(
+                                              i,j + 1),
+                                      GLToMillimeters(max_height2)));
+            direction = -1;
+        }}
+        else if(direction == -1) {
+            for (int j = m-1; j > 1; j -= skip_columns) {
+                float max_height1 = MaxHeightInVicinity(i, j, n, m,
+                                                        look_ahead_radius_row,
+                                                        look_ahead_radius_column,
+                                                        height_map_path);
+                float max_height2 = MaxHeightInVicinity(i, j - skip_columns, n,
+                                                        m,
+                                                        look_ahead_radius_row,
+                                                        look_ahead_radius_column,
+                                                        height_map_path);
+                instructions.push_back(
+                        CreateInstruction(id++, height_map_path->Position(i, j),
+                                          GLToMillimeters(max_height1)));
+                instructions.push_back(
+                        CreateInstruction(id++,
+                                          height_map_path->Position(
+                                                  i, j - 1),
+                                          GLToMillimeters(max_height2)));
+                direction = 1;
+            }
+        }
     }
     return instructions;
 }
