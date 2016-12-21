@@ -26,10 +26,10 @@ public:
 
 private:
     void RenderMainWindow();
-
     void RenderLoadModel();
-
     void RenderPathGeneration();
+
+    void GenerateSignaturePath();
 
     std::shared_ptr<ifx::Scene> scene_;
     std::shared_ptr<CutterSimulation> simulation_;

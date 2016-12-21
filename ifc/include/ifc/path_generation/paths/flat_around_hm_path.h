@@ -56,6 +56,8 @@ private:
 
     const float diameter_ = 10.0f;
     const float radius_ = diameter_ / 2.0f;
+
+    int id_;
 };
 }
 

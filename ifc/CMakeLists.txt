@@ -102,10 +102,10 @@ include_directories(../InfinityCAD/${DEPS_DIR}/include/time)
 
 target_link_libraries(${APP_NAME}
         factory_ifx model_loader_ifx model_ifx
-        rendering_ifx shaders_ifx math_ifx
+        rendering_ifx shaders_ifx
         lighting_ifx object_ifx resources_ifx controls_ifx
         vr_ifx game_loop_ifx
-        gui_ifx engine_gui_ifx)
+        engine_gui_ifx gui_ifx  math_ifx)
 
 target_link_libraries(${APP_NAME}
         ${IFX_ROOT}/../InfinityCAD/dependencies/lib/ifc/libifc.so

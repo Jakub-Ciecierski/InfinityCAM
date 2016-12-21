@@ -15,6 +15,7 @@ glm::vec3 MillimetersToGL(const glm::vec3& vec);
 float MillimetersToGL(float mm);
 
 glm::vec2 GLToMillimeters(const glm::vec2& vec_gl);
+glm::vec3 GLToMillimeters(const glm::vec3& vec_gl);
 float GLToMillimeters(float gl);
 
 }

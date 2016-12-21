@@ -83,7 +83,7 @@ CutterStatus Cutter::CheckErrors(MaterialBox* material_box){
        && current_position_.y <= material_box->dimensions().z / 2.0f){
         if(current_position_.z <
                     material_box->dimensions().depth -
-                material_box->dimensions().max_depth){
+                material_box->dimensions().max_depth - 1.0f){
             std::cout << "Error MAX_DEPTH" << std::endl;
             return CutterStatus::MAX_DEPTH;
         }

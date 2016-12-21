@@ -10,7 +10,8 @@ FlatAroundHMPath::FlatAroundHMPath(
         std::shared_ptr<CADModelLoaderResult> model_loader_result,
         std::shared_ptr <MaterialBox> material_box) :
         model_loader_result_(model_loader_result),
-        material_box_(material_box){}
+        material_box_(material_box),
+        id_(0){}
 
 FlatAroundHMPath::~FlatAroundHMPath(){
 
@@ -68,66 +69,80 @@ std::vector<Instruction> FlatAroundHMPath::CreatePathSecondHalf(
         int n, int m,
         int skip_rows, int skip_columns,
         int look_ahead_radius_row, int look_ahead_radius_column){
-    std::vector<Instruction> instructions;
-
-    int id = 0;
     float current_height = start_height - radius;
 
-    const glm::vec2 save_position = glm::vec2(MillimetersToGL(radius*4),0);
-    instructions.push_back(
-            CreateInstruction(id++,
-                              height_map_path->Position(skip_rows, m-1)
-                              + save_position,
-                              save_height));
-    instructions.push_back(
-            CreateInstruction(id++,
-                              height_map_path->Position(skip_rows, m-1)
-                              + save_position,
-                              current_height));
-    /*
-    instructions.push_back(
-            CreateInstruction(id++, height_map_path->Position(0,m-1),
-                              save_height));
-*/
-    bool go_back = false;
-    for(int i = 0; i < n;){
-        int j = m-1;
-        go_back = false;
-        for(j = m-1; j > 0; j--){
-            // Keep moving forward
-            instructions.push_back(
-                    CreateInstruction(id++, height_map_path->Position(i,j),
-                                      current_height));
-            go_back = ShouldGoBack(i, j, n, m,
-                                   look_ahead_radius_row,
-                                   look_ahead_radius_column,height_map_path);
+    std::vector<std::vector<glm::vec3>> lines;
 
-            if(go_back){
-                instructions.push_back(
-                        CreateInstruction(id++,
-                                          height_map_path->Position(i, m-1),
-                                          current_height));
+    for(int i = 0; i < n;){
+        std::vector<glm::vec3> line_positions;
+        int j = 0;
+        bool go_back = false;
+        for(j = m-1; j >= 0; j--){
+            line_positions.push_back(glm::vec3(
+                    GLToMillimeters(height_map_path->Position(i,j).x),
+                    GLToMillimeters(height_map_path->Position(i,j).y),
+                    current_height));
+
+            if(ShouldGoBack(i, j, n, m,
+                            look_ahead_radius_row,
+                            look_ahead_radius_column,height_map_path)){
                 break;
             }
         }
+        lines.push_back(line_positions);
 
-        const glm::vec3& last_pos
-                = instructions[instructions.size() - 1].position();
         // zic-zac
         j--;
         i+=skip_columns;
-        if(i >= n) break;
-        instructions.push_back(
-                CreateInstruction(id++,
-                                  height_map_path->Position(i,m-1),
-                                  current_height));
+        if(i >= n)
+            break;
+    }
+
+    std::vector<Instruction> instructions;
+
+    const glm::vec2 save_position = glm::vec2(-MillimetersToGL(radius*4),0);
+    instructions.push_back(
+            CreateInstruction(id_++,
+                              height_map_path->Position(skip_rows, 0)
+                              + save_position,
+                              save_height));
+    instructions.push_back(
+            CreateInstruction(id_++,
+                              height_map_path->Position(skip_rows, 0)
+                              + save_position,
+                              current_height));
+    int direction = 1;
+    for(unsigned int i = 0; i < lines.size(); i++){
+        auto &line = lines[i];
+        if(direction == 1) {
+            instructions.push_back(Instruction(id_++, line[0]));
+            instructions.push_back(Instruction(id_++, line[line.size() - 1]));
+
+            if (i != lines.size() - 1) {
+                auto &next_line = lines[i + 1];
+                instructions.push_back(
+                        Instruction(id_++,next_line[next_line.size() - 1]));
+            }
+            direction = -1;
+        }
+        else{
+            instructions.push_back(Instruction(id_++, line[line.size() - 1]));
+            instructions.push_back(Instruction(id_++, line[0]));
+
+            if (i != lines.size() - 1) {
+                auto &next_line = lines[i + 1];
+                instructions.push_back(Instruction(id_++, next_line[0]));
+            }
+
+            direction = 1;
+        }
     }
 
     const glm::vec3& last_pos
             = instructions[instructions.size() - 1].position();
 
     instructions.push_back(
-            CreateInstruction(id++, MillimetersToGL(
+            CreateInstruction(id_++, MillimetersToGL(
                                       glm::vec2(last_pos.x,
                                                 last_pos.y)),
                               save_height));
@@ -140,59 +155,79 @@ std::vector<Instruction> FlatAroundHMPath::CreatePathFirstHalf(
         int n, int m,
         int skip_rows, int skip_columns,
         int look_ahead_radius_row, int look_ahead_radius_column){
+    float current_height = start_height - radius;
+
+    std::vector<std::vector<glm::vec3>> lines;
+
+    for(int i = 0; i < n;){
+        std::vector<glm::vec3> line_positions;
+        int j = 0;
+        bool go_back = false;
+        for(j = 0; j < m; j++){
+            line_positions.push_back(glm::vec3(
+                    GLToMillimeters(height_map_path->Position(i,j).x),
+                    GLToMillimeters(height_map_path->Position(i,j).y),
+                    current_height));
+
+            if(ShouldGoBack(i, j, n, m,
+                            look_ahead_radius_row,
+                            look_ahead_radius_column,height_map_path)){
+                break;
+            }
+        }
+        lines.push_back(line_positions);
+
+        // zic-zac
+        i+=skip_columns;
+        if(i >= n)
+            break;
+    }
+
     std::vector<Instruction> instructions;
 
-    int id = 0;
-    float current_height = start_height - radius;
     const glm::vec2 save_position = glm::vec2(-MillimetersToGL(radius*4),0);
     instructions.push_back(
-            CreateInstruction(id++,
+            CreateInstruction(id_++,
                               height_map_path->Position(skip_rows, 0)
                               + save_position,
                               save_height));
     instructions.push_back(
-            CreateInstruction(id++,
+            CreateInstruction(id_++,
                               height_map_path->Position(skip_rows, 0)
                               + save_position,
                               current_height));
-    bool go_back = false;
-    for(int i = 0; i < n;){
-        int j = 0;
-        go_back = false;
-        for(j = 0; j < m; j++){
-            // Keep moving forward
-            instructions.push_back(
-                    CreateInstruction(id++, height_map_path->Position(i,j),
-                                      current_height));
-            go_back = ShouldGoBack(i, j, n, m,
-                                   look_ahead_radius_row,
-                                   look_ahead_radius_column,height_map_path);
+    int direction = 1;
+    for(unsigned int i = 0; i < lines.size(); i++){
+        auto &line = lines[i];
+        if(direction == 1) {
+            instructions.push_back(Instruction(id_++, line[0]));
+            instructions.push_back(Instruction(id_++, line[line.size() - 1]));
 
-            if(go_back){
+            if (i != lines.size() - 1) {
+                auto &next_line = lines[i + 1];
                 instructions.push_back(
-                        CreateInstruction(id++, height_map_path->Position(i,0),
-                                          current_height));
-                break;
+                        Instruction(id_++,next_line[next_line.size() - 1]));
             }
+            direction = -1;
         }
+        else{
+            instructions.push_back(Instruction(id_++, line[line.size() - 1]));
+            instructions.push_back(Instruction(id_++, line[0]));
 
-        const glm::vec3& last_pos
-                = instructions[instructions.size() - 1].position();
-        // zic-zac
-        j--;
-        i+=skip_columns;
-        if(i >= n) break;
-        instructions.push_back(
-                CreateInstruction(id++,
-                                  height_map_path->Position(i,0),
-                                  current_height));
+            if (i != lines.size() - 1) {
+                auto &next_line = lines[i + 1];
+                instructions.push_back(Instruction(id_++, next_line[0]));
+            }
+
+            direction = 1;
+        }
     }
 
     const glm::vec3& last_pos
             = instructions[instructions.size() - 1].position();
 
     instructions.push_back(
-            CreateInstruction(id++, MillimetersToGL(
+            CreateInstruction(id_++, MillimetersToGL(
                                       glm::vec2(last_pos.x,
                                                 last_pos.y)),
                               save_height));

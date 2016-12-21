@@ -37,6 +37,10 @@ void PathGenerationGUI::RenderMainWindow(){
         ImGui::TreePop();
     }
 
+    if(ImGui::TreeNode("Signature")){
+        GenerateSignaturePath();
+        ImGui::TreePop();
+    }
 
     ImGui::End();
 }
@@ -157,6 +161,33 @@ void PathGenerationGUI::RenderPathGeneration(){
     }
 
     ImGui::PopItemWidth();
+}
+
+void PathGenerationGUI::GenerateSignaturePath(){
+    static std::vector<Instruction> instructions;
+    static int id = 0;
+    if(ImGui::Button("Add")){
+        auto object = simulation_->cutter()->render_object();
+        auto pos = object->getPosition();
+        auto mm_pos = GLToMillimeters(pos);
+        float y = mm_pos.y;
+        mm_pos.y = mm_pos.z;
+        mm_pos.z = y;
+
+        mm_pos.z = 20;
+        instructions.push_back(Instruction(id++, mm_pos));
+    }
+
+    if(ImGui::Button("Save")){
+        auto cutter = std::shared_ptr<Cutter>(new Cutter(
+                CutterType::Sphere, 1, instructions));
+        cutter->SaveToFile("jc_sig");
+
+        instructions.clear();
+        id = 0;
+    }
+
+
 }
 
 }

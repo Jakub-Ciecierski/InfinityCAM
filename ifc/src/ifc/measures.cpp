@@ -34,6 +34,15 @@ glm::vec2 GLToMillimeters(const glm::vec2& vec_gl){
     return vec_mm;
 }
 
+glm::vec3 GLToMillimeters(const glm::vec3& vec_gl){
+    glm::vec3 vec_mm;
+    vec_mm.x = GLToMillimeters(vec_gl.x);
+    vec_mm.y = GLToMillimeters(vec_gl.y);
+    vec_mm.z = GLToMillimeters(vec_gl.z);
+
+    return vec_mm;
+}
+
 float GLToMillimeters(float gl){
     return gl / MillimeterToGLScale;
 }

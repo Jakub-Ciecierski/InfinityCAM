@@ -23,8 +23,7 @@ ParametrizationPath::ParametrizationPath(
         model_loader_result_(model_loader_result),
         material_box_(material_box),
         scene_(scene),
-        id_(513) // for saved intersection instructions
-{ }
+        id_(0) { }
 
 ParametrizationPath::~ParametrizationPath(){ }
 
@@ -406,13 +405,13 @@ std::vector<glm::vec3> ParametrizationPath::CreateBaseTrajectory(){
             material_box_->dimensions().depth -
                     material_box_->dimensions().max_depth);
     auto base_surface = model_loader_result_->cad_model->surfaces[0];
-    float du = 0.009;
+    float du = 0.009 * 0.5f;
     float dv = 0.005;
     const float start = 0.0f;
     const float end = 1.0f;
 
     //for(float u = start; u < 0.5f; u+=du){
-    float start_u = 0.5f - (6.0f*du);
+    float start_u = 0.5f - (12.0f*du);
     for(float u = start_u; u >= 0; u-=du){
         std::vector<glm::vec3> row_positions;
 
