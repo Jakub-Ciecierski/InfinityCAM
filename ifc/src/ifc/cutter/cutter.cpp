@@ -54,8 +54,14 @@ bool Cutter::SaveToFile(std::string filename) {
     file.open(filename);
     if(!file.is_open())
         return false;
-    for(auto& instruction : instructions_)
-        file << instruction.raw_instruction() << std::endl;
+    for(auto& instruction : instructions_){
+        auto pos = instruction.position();
+        pos.x = -pos.x;
+        Instruction fixed_coord_instruction(instruction.id(), pos,
+                                            instruction.speed_mode());
+        file << fixed_coord_instruction.raw_instruction() << std::endl;
+    }
+
      file.close();
 
     return true;

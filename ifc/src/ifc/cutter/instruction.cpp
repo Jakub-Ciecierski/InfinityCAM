@@ -41,6 +41,9 @@ void Instruction::Parse(std::string instruction_str){
     position_.x = GetPosition(instruction_str, X);
     position_.y = GetPosition(instruction_str, Y);
     position_.z = GetPosition(instruction_str, Z);
+
+    // Fix coordinate system
+    position_.x = -position_.x;
 }
 
 int Instruction::GetID(std::string instruction_str){
