@@ -40,7 +40,7 @@ std::shared_ptr<Cutter> RoughingPath::CreatePath(
 
     const float diameter = 16.0f;
     const float radius = diameter / 2.0f;
-    const float epsilon = 2.0f;
+    const float epsilon = 3.0f;
 
     int look_ahead_radius_row
             = (radius + epsilon) / height_map_path->row_width;
@@ -110,10 +110,10 @@ std::vector<Instruction> RoughingPath::CreatePathZigZag(
     std::vector<Instruction> instructions;
 
     int id = 0;
-    float max_height = MaxHeightInVicinity(0,0,n,m,
-                                           look_ahead_radius_row,
-                                           look_ahead_radius_column,
-                                           height_map_path);
+    const float min_height =
+            material_box_->dimensions().depth -
+            material_box_->dimensions().max_depth;
+
     instructions.push_back(
             CreateInstruction(id++,
                               height_map_path->Position(0,0)
@@ -123,39 +123,7 @@ std::vector<Instruction> RoughingPath::CreatePathZigZag(
             CreateInstruction(id++,
                               height_map_path->Position(0,0)
                               + MillimetersToGL(glm::vec2(-10,0)),
-                              max_height));
-    /*
-    int direction = 1;
-    for(int i = 0; i < n; i+=skip_rows){
-        for (int j = m-1; j > 1; j -= skip_columns) {
-            float max_height1 = MaxHeightInVicinity(i, j, n, m,
-                                                    look_ahead_radius_row,
-                                                    look_ahead_radius_column,
-                                                    height_map_path);
-            float max_height2 = MaxHeightInVicinity(i, j - skip_columns, n,
-                                                    m,
-                                                    look_ahead_radius_row,
-                                                    look_ahead_radius_column,
-                                                    height_map_path);
-            instructions.push_back(
-                    CreateInstruction(id++, height_map_path->Position(i, j),
-                                      GLToMillimeters(max_height1)));
-            instructions.push_back(
-                    CreateInstruction(id++,
-                                      height_map_path->Position(
-                                              i, j - 1),
-                                      GLToMillimeters(max_height2)));
-            direction = 1;
-        }
-    }
-    */
-
-
-
-
-
-
-
+                              min_height));
 
     int direction = 1;
     for(int i = 0; i < n; i+=skip_rows){
@@ -202,6 +170,11 @@ std::vector<Instruction> RoughingPath::CreatePathZigZag(
             }
         }
     }
+    auto last_instruction = instructions[instructions.size()-1];
+    auto last_pos = last_instruction.position();
+    last_pos.z = save_height;
+    instructions.push_back(Instruction(id++, last_pos));
+
     return instructions;
 }
 

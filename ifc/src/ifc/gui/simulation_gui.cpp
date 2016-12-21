@@ -15,6 +15,9 @@ SimulationGUI::SimulationGUI(std::shared_ptr<ifx::Scene> scene,
           plane_(plane),
           simulation_(simulation){
     SetDefaultParameters();
+
+    // TODO
+    ResetSimulation();
 }
 
 SimulationGUI::~SimulationGUI(){}

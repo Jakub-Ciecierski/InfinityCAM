@@ -22,7 +22,15 @@ struct CADModelLoaderResult;
 
 struct IntersectionData{
     std::vector<TracePoint> trace_points;
-    std::shared_ptr<SurfaceC2Cylind> surface;
+    std::vector<TracePoint> eq_distanced_trace_points;
+
+    std::vector<TracePoint> eq_distanced_trace_points1;
+
+    std::vector<TracePoint> eq_distanced_trace_points2;
+    std::vector<TracePoint> eq_distanced_trace_points3;
+
+    std::shared_ptr<SurfaceC2Cylind> surface1;
+    std::shared_ptr<SurfaceC2Cylind> surface2;
     std::shared_ptr<ifx::RenderObject> render_object;
 };
 
@@ -65,11 +73,30 @@ private:
     std::vector<Instruction> CreateInsideHandInstructions(
             std::vector<glm::vec3>& positions);
 
+    std::vector<Instruction> CreateIntersectionCurveInstructions(
+            std::shared_ptr<IntersectionData>);
+
     std::shared_ptr<ifx::RenderObject> CreateRenderObject(
             const std::vector<TracePoint>& trace_points,
             std::string name);
 
     glm::vec3 GetInstructionPosition(const glm::vec3& v);
+
+    std::vector<TracePoint> TrimTracePoints(
+            const std::vector<TracePoint>& trace_points);
+
+    bool IsColliding(const std::vector<TracePoint>& trace_points,
+                     const glm::vec3& point);
+
+    bool IsColliding(
+            const std::vector<TracePoint>& trace_points,
+            const glm::vec3& point, glm::vec3* colliding_point);
+
+    void ComputeEqualDistanceTracePoints(
+            std::shared_ptr<IntersectionData> data,
+            int direction = 1);
+
+    int id_;
 
     const float diameter_ = 8;
     const float radius_ = diameter_ / 2.0f;
@@ -82,3 +109,4 @@ private:
 }
 
 #endif //PROJECT_PARAMETRIZATION_PATH_H
+
