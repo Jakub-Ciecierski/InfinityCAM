@@ -71,7 +71,8 @@ include_directories(${IFX_ROOT}/modules/common/resources/${INC_DIR})
 include_directories(${IFX_ROOT}/modules/common/math/${INC_DIR})
 include_directories(${IFX_ROOT}/modules/graphics/factory/${INC_DIR})
 include_directories(${IFX_ROOT}/modules/vr/${INC_DIR})
-include_directories(${IFX_ROOT}/modules/logic/game_loop/${INC_DIR})
+include_directories(${IFX_ROOT}/modules/game/game/${INC_DIR})
+include_directories(${IFX_ROOT}/modules/physics/physics/${INC_DIR})
 include_directories(${IFX_ROOT}/modules/gui/gui/${INC_DIR})
 include_directories(${IFX_ROOT}/modules/gui/engine_gui/${INC_DIR})
 
@@ -101,11 +102,12 @@ include_directories(../InfinityCAD/${DEPS_DIR}/include/time)
 #---------------------------------
 
 target_link_libraries(${APP_NAME}
+        game_ifx physics_ifx
         factory_ifx model_loader_ifx model_ifx
         rendering_ifx shaders_ifx
         lighting_ifx object_ifx resources_ifx controls_ifx
-        vr_ifx game_loop_ifx
-        engine_gui_ifx gui_ifx  math_ifx)
+        vr_ifx
+        engine_gui_ifx gui_ifx math_ifx)
 
 target_link_libraries(${APP_NAME}
         ${IFX_ROOT}/../InfinityCAD/dependencies/lib/ifc/libifc.so

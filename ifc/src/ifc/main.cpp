@@ -1,16 +1,17 @@
 #include <factory/render_object_factory.h>
-#include <game_loop/game_loop.h>
+#include <game/game_loop.h>
 #include <rendering/renderer.h>
 #include <ifc/gui/cam_gui.h>
 #include <ifc/cutter/cutter_simulation.h>
 #include <ifc/factory/material_box_factory.h>
 
 #include <memory>
+#include <game/factory/game_loop_factory.h>
 
-void InitGUI(ifx::GameLoop* game_loop);
-void InitCamera(ifx::GameLoop* game_loop);
+void InitGUI(std::shared_ptr<ifx::GameLoop> game_loop);
+void InitCamera(std::shared_ptr<ifx::GameLoop> game_loop);
 
-void InitGUI(ifx::GameLoop* game_loop){
+void InitGUI(std::shared_ptr<ifx::GameLoop> game_loop){
     auto plane = ifc::MaterialBoxFactory().CreatePlane();
     plane->models()[0]->getMesh(0)->polygon_mode(ifx::PolygonMode::LINE);
 
@@ -30,7 +31,7 @@ void InitGUI(ifx::GameLoop* game_loop){
     game_loop->renderer()->SetGUI(std::move(gui));
 }
 
-void InitCamera(ifx::GameLoop* game_loop){
+void InitCamera(std::shared_ptr<ifx::GameLoop> game_loop){
     game_loop->renderer()->scene()->camera()->moveTo(
             glm::vec3(2.0f, 2.0f, 2.0f));
     game_loop->renderer()->scene()->camera()->rotateTo(
@@ -38,12 +39,11 @@ void InitCamera(ifx::GameLoop* game_loop){
 }
 
 int main() {
-    ifx::GameLoop game_loop(
-            std::move(ifx::RenderObjectFactory().CreateRenderer()));
+    auto game_loop = ifx::GameLoopFactory().Create();
 
-    InitGUI(&game_loop);
-    InitCamera(&game_loop);
+    InitGUI(game_loop);
+    InitCamera(game_loop);
 
-    game_loop.Start();
+    game_loop->Start();
 }
 
